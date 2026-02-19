@@ -1,0 +1,13 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/media/page": "/admin/media",
+  "/admin/page": "/admin",
+  "/admin/portfolio/page": "/admin/portfolio",
+  "/favicon.ico/route": "/favicon.ico",
+  "/media/page": "/media",
+  "/page": "/",
+  "/portfolio/[id]/page": "/portfolio/[id]",
+  "/portfolio/page": "/portfolio",
+  "/request-meeting/page": "/request-meeting"
+}
