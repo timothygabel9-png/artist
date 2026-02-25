@@ -2,11 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { addDoc, collection, serverTimestamp, updateDoc, doc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { isAdmin } from "@/lib/admin";
 import { uploadFile } from "@/lib/upload";
 import Link from "next/link";
+
 
 type ItemType = "mural" | "carpentry";
 type Category = "indoor" | "outdoor";
@@ -88,6 +95,7 @@ export default function AdminPortfolioUpload() {
     try {
       // 1) Create Firestore doc first (so we have an ID for Storage path)
       const ref = await addDoc(collection(db, "portfolioItems"), {
+        active: true, // ✅ IMPORTANT: public pages usually filter active==true
         title: title.trim(),
         type,
         category,
@@ -95,7 +103,9 @@ export default function AdminPortfolioUpload() {
         tags,
         featured: false,
         coverImageUrl: "",
+        coverImagePath: "",
         imageUrls: [],
+        imagePaths: [],
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -104,21 +114,30 @@ export default function AdminPortfolioUpload() {
 
       // 2) Upload images to Storage
       const uploadedUrls: string[] = [];
+      const uploadedPaths: string[] = [];
+
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         const safeName = f.name.replace(/[^\w.\-]+/g, "_");
         const path = `portfolio/${itemId}/${Date.now()}_${i}_${safeName}`;
-        const url = await uploadFile(f, path);
+
+        const { url, path: storedPath } = await uploadFile(f, path);
+
         uploadedUrls.push(url);
+        uploadedPaths.push(storedPath);
+
         setStatus(`Uploaded ${i + 1}/${files.length}...`);
       }
 
       const coverUrl = uploadedUrls[coverIndex];
+      const coverPath = uploadedPaths[coverIndex];
 
-      // 3) Update Firestore doc with URLs
+      // 3) Update Firestore doc with URLs + Paths
       await updateDoc(doc(db, "portfolioItems", itemId), {
         imageUrls: uploadedUrls,
+        imagePaths: uploadedPaths,
         coverImageUrl: coverUrl,
+        coverImagePath: coverPath,
         updatedAt: serverTimestamp(),
       });
 
@@ -128,14 +147,14 @@ export default function AdminPortfolioUpload() {
       setTagsText("");
       setFiles([]);
       setCoverIndex(0);
-   } catch (err: any) {
-  console.error("UPLOAD ERROR:", err);
-  setStatus(
-    err?.code
-      ? `${err.code}: ${err.message || "Upload failed."}`
-      : (err?.message || "Upload failed.")
-  );
-} finally {
+    } catch (err: any) {
+      console.error("UPLOAD ERROR:", err);
+      setStatus(
+        err?.code
+          ? `${err.code}: ${err.message || "Upload failed."}`
+          : err?.message || "Upload failed."
+      );
+    } finally {
       setBusy(false);
     }
   }
@@ -146,7 +165,9 @@ export default function AdminPortfolioUpload() {
     return (
       <div className="p-6 max-w-2xl mx-auto">
         <p>You are not signed in.</p>
-        <Link className="underline" href="/admin">Go to Admin Login</Link>
+        <Link className="underline" href="/admin">
+          Go to Admin Login
+        </Link>
       </div>
     );
   }
@@ -156,9 +177,12 @@ export default function AdminPortfolioUpload() {
       <div className="p-6 max-w-2xl mx-auto">
         <p className="text-red-700">This account is not an admin.</p>
         <p className="text-sm mt-2">
-          Fix: in Firestore create <code>users/{uid}</code> with <code>role: "admin"</code>.
+          Fix: in Firestore create <code>users/{uid}</code> with{" "}
+          <code>role: "admin"</code>.
         </p>
-        <Link className="underline" href="/admin">Back</Link>
+        <Link className="underline" href="/admin">
+          Back
+        </Link>
       </div>
     );
   }
@@ -167,19 +191,29 @@ export default function AdminPortfolioUpload() {
     <div className="min-h-screen p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Portfolio Upload</h1>
-        <Link className="underline" href="/admin">Admin Home</Link>
+        <Link className="underline" href="/admin">
+          Admin Home
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
           <label className="block text-sm mb-1">Title</label>
-          <input className="w-full border rounded p-2" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input
+            className="w-full border rounded p-2"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm mb-1">Type</label>
-            <select className="w-full border rounded p-2" value={type} onChange={(e) => setType(e.target.value as ItemType)}>
+            <select
+              className="w-full border rounded p-2"
+              value={type}
+              onChange={(e) => setType(e.target.value as ItemType)}
+            >
               <option value="mural">Mural</option>
               <option value="carpentry">Carpentry</option>
             </select>
@@ -221,7 +255,9 @@ export default function AdminPortfolioUpload() {
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="font-medium">Images</p>
-              <p className="text-sm text-gray-600">Add multiple images. Pick which one is the cover.</p>
+              <p className="text-sm text-gray-600">
+                Add multiple images. Pick which one is the cover.
+              </p>
             </div>
             <label className="px-4 py-2 rounded bg-black text-white cursor-pointer">
               Add Images
@@ -238,10 +274,15 @@ export default function AdminPortfolioUpload() {
           {files.length > 0 && (
             <div className="mt-4 space-y-2">
               {files.map((f, idx) => (
-                <div key={idx} className="flex items-center justify-between gap-3 border rounded p-2">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between gap-3 border rounded p-2"
+                >
                   <div className="min-w-0">
                     <p className="truncate">{f.name}</p>
-                    <p className="text-xs text-gray-600">{Math.round(f.size / 1024)} KB</p>
+                    <p className="text-xs text-gray-600">
+                      {Math.round(f.size / 1024)} KB
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-3">
