@@ -5,25 +5,25 @@ type Variant =
   | "amberIndigo"
   | "mintLavender"
   | "neutral"
-  // darker / moodier
   | "midnightIndigo"
   | "deepRoseNoir"
   | "forestStudio"
   | "auroraNight"
-  | "charcoal";
+  | "charcoal"
+  | "oceanNoir";
 
-const variants: Record<Variant, { base: string; blobs: string }> = {
+const variants: Record<Variant, { base: string; blobs: string; tone: "light" | "dark" }> = {
   // --- LIGHT THEMES ---
   roseSky: {
     base: "bg-gradient-to-br from-rose-100 via-white to-sky-100",
     blobs:
-      // "paint swirls" + soft blobs
       "opacity-60 [background:" +
       "radial-gradient(circle_at_20%_10%,rgba(59,130,246,0.20),transparent_48%)," +
       "radial-gradient(circle_at_80%_20%,rgba(244,63,94,0.18),transparent_50%)," +
       "radial-gradient(circle_at_40%_90%,rgba(34,197,94,0.12),transparent_55%)," +
       "conic-gradient(from_220deg_at_60%_30%,rgba(236,72,153,0.10),rgba(59,130,246,0.10),rgba(34,197,94,0.08),rgba(236,72,153,0.10))" +
       "]",
+    tone: "light",
   },
 
   amberIndigo: {
@@ -35,6 +35,7 @@ const variants: Record<Variant, { base: string; blobs: string }> = {
       "radial-gradient(circle_at_50%_95%,rgba(236,72,153,0.12),transparent_55%)," +
       "conic-gradient(from_200deg_at_55%_35%,rgba(245,158,11,0.10),rgba(99,102,241,0.10),rgba(236,72,153,0.08),rgba(245,158,11,0.10))" +
       "]",
+    tone: "light",
   },
 
   mintLavender: {
@@ -46,6 +47,7 @@ const variants: Record<Variant, { base: string; blobs: string }> = {
       "radial-gradient(circle_at_50%_92%,rgba(59,130,246,0.12),transparent_55%)," +
       "conic-gradient(from_240deg_at_52%_32%,rgba(16,185,129,0.10),rgba(139,92,246,0.10),rgba(59,130,246,0.08),rgba(16,185,129,0.10))" +
       "]",
+    tone: "light",
   },
 
   neutral: {
@@ -56,6 +58,7 @@ const variants: Record<Variant, { base: string; blobs: string }> = {
       "radial-gradient(circle_at_75%_20%,rgba(0,0,0,0.05),transparent_55%)," +
       "conic-gradient(from_180deg_at_55%_35%,rgba(0,0,0,0.03),rgba(0,0,0,0.02),rgba(0,0,0,0.03))" +
       "]",
+    tone: "light",
   },
 
   // --- DARK THEMES ---
@@ -68,6 +71,7 @@ const variants: Record<Variant, { base: string; blobs: string }> = {
       "radial-gradient(circle_at_50%_90%,rgba(14,165,233,0.26),transparent_58%)," +
       "conic-gradient(from_210deg_at_58%_32%,rgba(99,102,241,0.22),rgba(236,72,153,0.18),rgba(14,165,233,0.16),rgba(99,102,241,0.22))" +
       "]",
+    tone: "dark",
   },
 
   deepRoseNoir: {
@@ -79,6 +83,7 @@ const variants: Record<Variant, { base: string; blobs: string }> = {
       "radial-gradient(circle_at_50%_85%,rgba(168,85,247,0.28),transparent_62%)," +
       "conic-gradient(from_235deg_at_55%_35%,rgba(244,63,94,0.22),rgba(168,85,247,0.18),rgba(251,113,133,0.14),rgba(244,63,94,0.22))" +
       "]",
+    tone: "dark",
   },
 
   forestStudio: {
@@ -90,6 +95,7 @@ const variants: Record<Variant, { base: string; blobs: string }> = {
       "radial-gradient(circle_at_50%_90%,rgba(59,130,246,0.20),transparent_62%)," +
       "conic-gradient(from_210deg_at_52%_34%,rgba(16,185,129,0.20),rgba(34,197,94,0.16),rgba(59,130,246,0.12),rgba(16,185,129,0.20))" +
       "]",
+    tone: "dark",
   },
 
   auroraNight: {
@@ -101,23 +107,38 @@ const variants: Record<Variant, { base: string; blobs: string }> = {
       "radial-gradient(circle_at_50%_90%,rgba(236,72,153,0.24),transparent_62%)," +
       "conic-gradient(from_200deg_at_58%_30%,rgba(56,189,248,0.20),rgba(168,85,247,0.18),rgba(236,72,153,0.14),rgba(56,189,248,0.20))" +
       "]",
+    tone: "dark",
   },
 
   charcoal: {
-    base: "bg-gradient-to-br from-neutral-900 via-zinc-900 to-black",
+    base: "bg-gradient-to-br from-neutral-950 via-zinc-950 to-black",
     blobs:
       "opacity-30 [background:" +
       "radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.10),transparent_55%)," +
       "radial-gradient(circle_at_70%_25%,rgba(255,255,255,0.06),transparent_60%)," +
       "conic-gradient(from_180deg_at_55%_35%,rgba(255,255,255,0.05),rgba(255,255,255,0.03),rgba(255,255,255,0.05))" +
       "]",
+    tone: "dark",
+  },
+
+  // ✅ NEW: used by Media page (variant="oceanNoir")
+  oceanNoir: {
+    base: "bg-gradient-to-br from-slate-950 via-cyan-950 to-black",
+    blobs:
+      "opacity-50 [background:" +
+      "radial-gradient(circle_at_18%_20%,rgba(14,165,233,0.28),transparent_55%)," +
+      "radial-gradient(circle_at_82%_18%,rgba(59,130,246,0.22),transparent_58%)," +
+      "radial-gradient(circle_at_55%_85%,rgba(34,211,238,0.18),transparent_62%)," +
+      "conic-gradient(from_210deg_at_55%_35%,rgba(14,165,233,0.18),rgba(59,130,246,0.16),rgba(34,211,238,0.12),rgba(14,165,233,0.18))" +
+      "]",
+    tone: "dark",
   },
 };
 
 export default function SoftPageShell({
   title,
   subtitle,
-  variant = "roseSky",
+  variant = "midnightIndigo",
   maxWidth = "max-w-6xl",
   showHomeLink = true,
   children,
@@ -129,32 +150,45 @@ export default function SoftPageShell({
   showHomeLink?: boolean;
   children: React.ReactNode;
 }) {
-  const v = variants[variant];
+  // ✅ bulletproof: never crash if a page passes a typo variant
+  const safeKey =
+    typeof variant === "string" && Object.prototype.hasOwnProperty.call(variants, variant.trim())
+      ? (variant.trim() as Variant)
+      : "midnightIndigo";
+
+  const v = variants[safeKey];
+
+  const isDark = v.tone === "dark";
+  const titleClass = isDark ? "text-white" : "text-black";
+  const subClass = isDark ? "text-white/70" : "text-gray-700";
+  const linkClass = isDark ? "text-white/70 hover:text-white" : "text-gray-700 hover:text-black";
+
+  const containerClass = isDark
+    ? "rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
+    : "rounded-2xl border border-black/5 bg-white/70 backdrop-blur shadow-sm";
 
   return (
-    <main className="min-h-screen relative overflow-hidden">
-      {/* background layers */}
+    <main className={`min-h-screen relative overflow-hidden ${isDark ? "text-white" : "text-black"}`}>
       <div className={`absolute inset-0 z-0 ${v.base}`} />
       <div className={`absolute inset-0 z-0 ${v.blobs}`} />
 
-      {/* content */}
       <div className={`relative z-10 mx-auto ${maxWidth} px-6 py-10`}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">{title}</h1>
-            {subtitle ? <p className="mt-2 text-gray-700">{subtitle}</p> : null}
+            <h1 className={`text-3xl md:text-4xl font-semibold tracking-tight ${titleClass}`}>
+              {title}
+            </h1>
+            {subtitle ? <p className={`mt-2 ${subClass}`}>{subtitle}</p> : null}
           </div>
 
           {showHomeLink ? (
-            <Link href="/" className="text-sm underline text-gray-700 hover:text-black">
+            <Link href="/" className={`text-sm underline ${linkClass}`}>
               Home
             </Link>
           ) : null}
         </div>
 
-        <div className="mt-8 rounded-2xl border border-black/5 bg-white/70 backdrop-blur shadow-sm p-6 md:p-8">
-          {children}
-        </div>
+        <div className={`mt-8 p-6 md:p-8 ${containerClass}`}>{children}</div>
       </div>
     </main>
   );

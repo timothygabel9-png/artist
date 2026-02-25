@@ -95,15 +95,51 @@ export default function RequestMeetingPage() {
       }
 
       setStatus("Sending request…");
-      const res = await fetch("/.netlify/functions/request-meeting", {
+
+      // ✅ CHANGED: send via Next.js API route (Resend) instead of Netlify function
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, photoUrl }),
+        body: JSON.stringify({
+          name: `${form.firstName} ${form.lastName}`.trim(),
+          email: form.email,
+          message: [
+            "REQUEST MEETING",
+            "",
+            `Name: ${form.firstName} ${form.lastName}`,
+            `Email: ${form.email}`,
+            `Phone: ${form.phone}`,
+            `Business: ${form.businessName || "(none)"}`,
+            "",
+            "Location:",
+            `${form.addressLine1}`,
+            `${form.city}, ${form.state} ${form.zip}`,
+            "",
+            `Preferred date: ${form.preferredDate}`,
+            `Preferred time: ${form.preferredTime}`,
+            "",
+            "Comments:",
+            form.comments || "(none)",
+            "",
+            `Photo URL: ${photoUrl || "(none)"}`,
+          ].join("\n"),
+        }),
       });
+
+      // ✅ CHANGED: defensive parsing to avoid the "<!DOCTYPE" JSON crash
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        const text = await res.text();
+        throw new Error(
+          `Expected JSON, got ${ct}. Status ${res.status}. Body: ${text.slice(0, 120)}`
+        );
+      }
 
       const data = await res.json();
       if (!res.ok || !data.ok) {
-        throw new Error(data?.error || "Failed to send request.");
+        throw new Error(
+          (typeof data?.error === "string" && data.error) || "Failed to send request."
+        );
       }
 
       setStatus("✅ Request sent! We’ll reach out soon.");
@@ -121,7 +157,7 @@ export default function RequestMeetingPage() {
     <SoftPageShell
       title="Request a Meeting"
       subtitle="Share a few details and your preferred time — we’ll follow up to confirm."
-      variant="amberIndigo"
+      variant="deepRoseNoirw"
       maxWidth="max-w-3xl"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -230,7 +266,9 @@ export default function RequestMeetingPage() {
         <SectionTitle>Project details</SectionTitle>
 
         <div>
-          <label className="block text-sm mb-1 text-gray-800">Comments (max 500)</label>
+          <label className="block text-sm mb-1 text-gray-800">
+            Comments (max 500)
+          </label>
           <textarea
             className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 min-h-[140px] outline-none focus:ring-2 focus:ring-black/10"
             value={form.comments}
@@ -238,13 +276,19 @@ export default function RequestMeetingPage() {
             onChange={(e) => set("comments", e.target.value)}
             placeholder="Tell us what you’re looking for…"
           />
-          <p className={`text-xs mt-1 ${remaining < 0 ? "text-red-600" : "text-gray-600"}`}>
+          <p
+            className={`text-xs mt-1 ${
+              remaining < 0 ? "text-red-600" : "text-gray-600"
+            }`}
+          >
             {remaining} characters remaining
           </p>
         </div>
 
         <div>
-          <label className="block text-sm mb-2 text-gray-800">Upload a photo (optional)</label>
+          <label className="block text-sm mb-2 text-gray-800">
+            Upload a photo (optional)
+          </label>
 
           <div className="flex items-center gap-3 flex-wrap">
             <label className="inline-block cursor-pointer rounded-md bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-black/90">
@@ -315,5 +359,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="pt-2 text-xs font-semibold tracking-widest uppercase text-gray-600">{children}</h2>;
+  return (
+    <h2 className="pt-2 text-xs font-semibold tracking-widest uppercase text-white/90">
+      {children}
+    </h2>
+  );
 }
