@@ -121,12 +121,11 @@ export default function AdminPortfolioUpload() {
         const safeName = f.name.replace(/[^\w.\-]+/g, "_");
         const path = `portfolio/${itemId}/${Date.now()}_${i}_${safeName}`;
 
-        const { url, path: storedPath } = await uploadFile(f, path);
+const url = await uploadFile(f, path);
+const storedPath = path;
 
-        uploadedUrls.push(url);
-        uploadedPaths.push(storedPath);
-
-        setStatus(`Uploaded ${i + 1}/${files.length}...`);
+uploadedUrls.push(url);
+uploadedPaths.push(storedPath);
       }
 
       const coverUrl = uploadedUrls[coverIndex];

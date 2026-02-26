@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import SoftPageShell from "@/components/SoftPageShell";
 import { getPortfolioItems, PortfolioItem } from "@/lib/portfolio";
@@ -31,7 +32,7 @@ export default function PortfolioPage() {
   }, []);
 
   return (
-    <SoftPageShell variant="oceanNoir">
+    <SoftPageShell title="Portfolio" variant="oceanNoir">
       <main className="mx-auto w-full max-w-6xl px-4 py-10 text-white">
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
@@ -66,13 +67,14 @@ export default function PortfolioPage() {
                 href={`/portfolio/${it.id}`}
                 className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition hover:bg-white/10"
               >
-                <div className="aspect-[4/3] bg-white/5">
+                <div className="relative aspect-[4/3] bg-white/5">
                   {it.coverImageUrl ? (
-                    <img
+                    <Image
                       src={it.coverImageUrl}
                       alt={it.title || "Portfolio item"}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-sm text-white/60">
@@ -82,9 +84,7 @@ export default function PortfolioPage() {
                 </div>
 
                 <div className="p-4">
-                  <h2 className="truncate font-semibold">
-                    {it.title || "Untitled"}
-                  </h2>
+                  <h2 className="truncate font-semibold">{it.title || "Untitled"}</h2>
                   <p className="mt-2 text-sm text-white/70">
                     {(it.type || "project")} • {(it.category || "category")}
                   </p>

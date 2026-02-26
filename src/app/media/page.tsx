@@ -129,7 +129,7 @@ export default function MediaPage() {
   const youtubeItems = useMemo(() => items.filter((i) => i.type === "youtube"), [items]);
 
   return (
-    <SoftPageShell variant="oceanNoir">
+    <SoftPageShell title="Media" variant="oceanNoir">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
