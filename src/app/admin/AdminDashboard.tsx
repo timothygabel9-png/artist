@@ -6,7 +6,7 @@ import TeesAdmin from "./tabs/TeesAdmin";
 import MediaAdmin from "./tabs/MediaAdmin";
 import StudioAdmin from "./tabs/StudioAdmin";
 
-type TabKey = "portfolio" | "tees" | "media" | "studio";
+type TabKey = "portfolio" | "graphic design" | "media" | "studio";
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState<TabKey>("portfolio");

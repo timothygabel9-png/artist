@@ -49,15 +49,15 @@ export default async function HomePage() {
 
         <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 pt-20">
           <p className="text-white/80 text-sm tracking-widest uppercase">
-            Murals • Graphic Tees • Studio Work
+            Murals • Graphic Design • Studio Work
           </p>
 
           <h1 className="mt-4 max-w-3xl text-white text-4xl md:text-6xl font-semibold leading-tight">
-            Bold art for walls, shirts, and spaces people remember.
+            Bold art for Residental, Commercal, and spaces people remember.
           </h1>
 
           <p className="mt-4 max-w-2xl text-white/85 text-base md:text-lg">
-            Creative Edge brings indoor/outdoor murals, original graphic tees, and hands-on
+            Creative Edge brings indoor/outdoor murals, original graphic designs, and hands-on
             creative builds to life — inspired by music, shaped by travel, and grounded in
             the communities that support the work.
           </p>

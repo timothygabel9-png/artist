@@ -95,27 +95,29 @@ export default function AdminMediaPage() {
         return;
       }
 
-      // mode === "audio"
-      const ref = await addDoc(collection(db, "mediaItems"), {
-        type: "audio",
-        title: title.trim(),
-        audioUrl: "",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+// mode === "audio"
+const docRef = await addDoc(collection(db, "mediaItems"), {
+  type: "audio",
+  title: title.trim(),
+  audioUrl: "",
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp(),
+});
 
-      const itemId = ref.id;
+const itemId = docRef.id;
 
-      const safeName = audioFile!.name.replace(/[^\w.\-]+/g, "_");
-      const path = `media/${itemId}/${Date.now()}_${safeName}`;
+// Upload file
+setStatus("Uploading audio…");
 
-      setStatus("Uploading audio…");
-      const url = await uploadFile(audioFile!, path);
+// Put it in /media/{itemId}/ and let uploadFile create a unique safe name
+const url = await uploadFile(audioFile!, `media/${itemId}/`);
 
-      await updateDoc(doc(db, "mediaItems", itemId), {
-        audioUrl: url,
-        updatedAt: serverTimestamp(),
-      });
+await updateDoc(doc(db, "mediaItems", itemId), {
+  audioUrl: url,
+  updatedAt: serverTimestamp(),
+});
+
+setStatus("Done ✅");
 
       setStatus("✅ Audio media item created!");
       setTitle("");

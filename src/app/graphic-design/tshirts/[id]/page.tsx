@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 type Fit = "men" | "women";
 type TeeColor = { name: string; hex: string };
+
 type TeeProduct = {
   id: string;
   title: string;
@@ -50,13 +51,18 @@ function normalizeProduct(id: string, data: any): TeeProduct {
     fits: Array.isArray(data?.fits) ? data.fits : [],
     sizes: Array.isArray(data?.sizes) ? data.sizes : [],
     colors,
-    active: Boolean(data?.active),
+    // ✅ Treat missing as active (only false disables)
+    active: data?.active !== false,
   };
 }
 
 export default function TeeDetailPage() {
   const params = useParams();
-  const id = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : "";
+
+  const id = useMemo(() => {
+    const raw = (params as any)?.id;
+    return typeof raw === "string" ? raw : Array.isArray(raw) ? raw[0] : "";
+  }, [params]);
 
   const [product, setProduct] = useState<TeeProduct | null>(null);
   const [busy, setBusy] = useState(true);
@@ -71,35 +77,38 @@ export default function TeeDetailPage() {
   useEffect(() => {
     let alive = true;
 
-    async function load() {
+    (async () => {
       setBusy(true);
       setError("");
 
       try {
-        if (!id) throw new Error("Missing tee id in URL.");
+        if (!id) throw new Error("Missing product id in URL.");
 
         const ref = doc(db, "teeProducts", id);
         const snap = await getDoc(ref);
 
-        if (!snap.exists()) throw new Error("Tee not found.");
+        if (!snap.exists()) throw new Error("Product not found.");
 
         const p = normalizeProduct(snap.id, snap.data());
+
+        // Optional: hide inactive products
+        if (p.active === false) throw new Error("This product is not available.");
 
         if (!alive) return;
 
         setProduct(p);
+
         setFit((p.fits?.[0] as Fit) || "men");
         setSize(p.sizes?.[0] || "M");
         setColor(p.colors?.[0]?.name || "Black");
       } catch (e: any) {
         console.error("TEE DETAIL LOAD ERROR:", e);
-        if (alive) setError(e?.message || "Failed to load tee.");
+        if (alive) setError(e?.message || "Failed to load product.");
       } finally {
         if (alive) setBusy(false);
       }
-    }
+    })();
 
-    load();
     return () => {
       alive = false;
     };
@@ -108,8 +117,11 @@ export default function TeeDetailPage() {
   function addToCart() {
     if (!product) return;
     setStatus(`✅ Added: ${product.title} • ${fit} • ${size} • ${color} • Qty ${qty}`);
-    setTimeout(() => setStatus(""), 3000);
+    window.setTimeout(() => setStatus(""), 3000);
   }
+
+  const priceText =
+    Number.isFinite(product?.price) ? product!.price.toFixed(2) : "0.00";
 
   if (busy) {
     return (
@@ -123,9 +135,12 @@ export default function TeeDetailPage() {
     return (
       <main className="min-h-screen text-white px-6 py-10">
         <div className="mx-auto max-w-3xl">
-          <p className="text-white/70">{error || "Tee not found."}</p>
-          <Link href="/tees" className="underline text-white/80 hover:text-white">
-            Back to Tees
+          <p className="text-white/70">{error || "Product not found."}</p>
+          <Link
+            href="/graphic-design/tshirts"
+            className="text-sm underline text-white/70 hover:text-white"
+          >
+            Back to T-Shirts
           </Link>
         </div>
       </main>
@@ -139,9 +154,13 @@ export default function TeeDetailPage() {
 
       <div className="mx-auto max-w-6xl px-6 py-10">
         <div className="flex items-center justify-between">
-          <Link href="/tees" className="text-sm underline text-white/70 hover:text-white">
-            Back to Tees
+          <Link
+            href="/graphic-design/tshirts"
+            className="text-sm underline text-white/70 hover:text-white"
+          >
+            Back to T-Shirts
           </Link>
+
           <Link href="/" className="text-sm underline text-white/70 hover:text-white">
             Home
           </Link>
@@ -152,7 +171,7 @@ export default function TeeDetailPage() {
             <div className="aspect-square bg-black/40">
               <img
                 src={product.images?.[0] || "/hero.jpg"}
-                alt={product.title}
+                alt={product.title || "T-shirt"}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -161,70 +180,80 @@ export default function TeeDetailPage() {
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">{product.title}</h1>
             <p className="mt-2 text-white/70">{product.description}</p>
-            <p className="mt-4 text-xl font-semibold">${product.price}</p>
+            <p className="mt-4 text-xl font-semibold">${priceText}</p>
 
-            <div className="mt-8">
-              <p className="text-sm font-semibold text-white/80">Fit</p>
-              <div className="mt-2 flex gap-2">
-                {product.fits.map((f) => (
-                  <button
-                    key={`${product.id}-${f}`}
-                    type="button"
-                    onClick={() => setFit(f)}
-                    className={`px-4 py-2 rounded-full border transition ${
-                      fit === f ? "bg-white text-black border-white" : "bg-white/5 border-white/15 text-white"
-                    }`}
-                  >
-                    {f === "men" ? "Men" : "Women"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <p className="text-sm font-semibold text-white/80">Size</p>
-              <div className="mt-2 grid grid-cols-4 sm:grid-cols-7 gap-2">
-                {product.sizes.map((s) => (
-                  <button
-                    key={`${product.id}-size-${s}`}
-                    type="button"
-                    onClick={() => setSize(s)}
-                    className={`py-2 rounded-lg border text-sm transition ${
-                      size === s ? "bg-white text-black border-white" : "bg-white/5 border-white/15 text-white"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <p className="text-sm font-semibold text-white/80">Color</p>
-              <div className="mt-3 flex flex-wrap gap-3 items-center">
-                {product.colors.map((c, i) => {
-                  const selected = color === c.name;
-                  const isTie = c.hex === "tiedye";
-                  return (
+            {product.fits.length > 0 ? (
+              <div className="mt-8">
+                <p className="text-sm font-semibold text-white/80">Fit</p>
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  {product.fits.map((f) => (
                     <button
-                      key={`${product.id}-color-${c.name}-${i}`}
+                      key={`${product.id}-fit-${f}`}
                       type="button"
-                      onClick={() => setColor(c.name)}
-                      className={`h-10 w-10 rounded-full ring-2 transition ${
-                        selected ? "ring-white" : "ring-white/10 hover:ring-white/30"
-                      } ${isTie ? tiedyeClass() : ""}`}
-                      style={!isTie ? { backgroundColor: c.hex } : undefined}
-                      title={c.name}
-                      aria-label={c.name}
-                    />
-                  );
-                })}
-
-                <span className="text-sm text-white/70 ml-2">
-                  Selected: <span className="font-semibold text-white">{color}</span>
-                </span>
+                      onClick={() => setFit(f)}
+                      className={`px-4 py-2 rounded-full border transition ${
+                        fit === f
+                          ? "bg-white text-black border-white"
+                          : "bg-white/5 border-white/15 text-white"
+                      }`}
+                    >
+                      {f === "men" ? "Men" : "Women"}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
+
+            {product.sizes.length > 0 ? (
+              <div className="mt-8">
+                <p className="text-sm font-semibold text-white/80">Size</p>
+                <div className="mt-2 grid grid-cols-4 sm:grid-cols-7 gap-2">
+                  {product.sizes.map((s) => (
+                    <button
+                      key={`${product.id}-size-${s}`}
+                      type="button"
+                      onClick={() => setSize(s)}
+                      className={`py-2 rounded-lg border text-sm transition ${
+                        size === s
+                          ? "bg-white text-black border-white"
+                          : "bg-white/5 border-white/15 text-white"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {product.colors.length > 0 ? (
+              <div className="mt-8">
+                <p className="text-sm font-semibold text-white/80">Color</p>
+                <div className="mt-3 flex flex-wrap gap-3 items-center">
+                  {product.colors.map((c, i) => {
+                    const selected = color === c.name;
+                    const isTie = c.hex === "tiedye";
+                    return (
+                      <button
+                        key={`${product.id}-color-${c.name}-${i}`}
+                        type="button"
+                        onClick={() => setColor(c.name)}
+                        className={`h-10 w-10 rounded-full ring-2 transition ${
+                          selected ? "ring-white" : "ring-white/10 hover:ring-white/30"
+                        } ${isTie ? tiedyeClass() : ""}`}
+                        style={!isTie ? { backgroundColor: c.hex } : undefined}
+                        title={c.name}
+                        aria-label={c.name}
+                      />
+                    );
+                  })}
+
+                  <span className="text-sm text-white/70 ml-2">
+                    Selected: <span className="font-semibold text-white">{color}</span>
+                  </span>
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-10 flex flex-wrap gap-3 items-center">
               <div className="flex items-center gap-2">
@@ -256,7 +285,9 @@ export default function TeeDetailPage() {
               {status ? <p className="text-sm text-white/80">{status}</p> : null}
             </div>
 
-            <p className="mt-6 text-xs text-white/50">Shipping handled by the shopper • Local pickup available</p>
+            <p className="mt-6 text-xs text-white/50">
+              Shipping handled by the shopper • Local pickup available
+            </p>
           </div>
         </div>
       </div>

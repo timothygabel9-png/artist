@@ -2,10 +2,11 @@ import Link from "next/link";
 
 const nav = [
   { href: "/portfolio", label: "Portfolio" },
-  { href: "/tees", label: "Graphic Tees" },
-  { href: "/media", label: "Media" },
-  { href: "/request-meeting", label: "Request Meeting" },
+  { href: "/graphic-design", label: "Graphic Design" },
+  { href: "/media", label: "Press" },
+  { href: "/request-meeting", label: "Contact" },
   { href: "/studio", label: "Studio" },
+  { href: "/about", label: "About" },
 ];
 
 export default function SiteHeader() {
@@ -13,7 +14,7 @@ export default function SiteHeader() {
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/" className="text-white font-semibold tracking-wide">
-          Creative Edge
+          Shultz Studio
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm text-white/90">

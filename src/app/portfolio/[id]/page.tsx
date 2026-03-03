@@ -14,33 +14,48 @@ export default function PortfolioDetailPage() {
   const [err, setErr] = useState<string>("");
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       try {
         setErr("");
         setLoading(true);
+        setItem(null);
 
         if (!id || typeof id !== "string") {
           setErr("Missing portfolio id in URL.");
-          setItem(null);
           return;
         }
 
         const data = await getPortfolioItemById(id);
 
+        if (cancelled) return;
+
         if (!data) {
           setErr("Not found.");
-          setItem(null);
           return;
         }
 
         setItem(data);
       } catch (e: any) {
-        setErr(e?.message || "Failed to load.");
-        setItem(null);
+        if (cancelled) return;
+
+        const msg = e?.message || "Failed to load.";
+
+        // Firestore often throws "Missing or insufficient permissions."
+        if (msg.toLowerCase().includes("insufficient permissions")) {
+          setErr("This item is not available.");
+        } else {
+          setErr(msg);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (loading) return <div className="p-8">Loading…</div>;
@@ -59,7 +74,17 @@ export default function PortfolioDetailPage() {
   if (!item) return null;
 
   const images =
-    item.imageUrls?.length ? item.imageUrls : item.coverImageUrl ? [item.coverImageUrl] : [];
+    item.imageUrls?.length
+      ? item.imageUrls
+      : item.coverImageUrl
+      ? [item.coverImageUrl]
+      : [];
+
+  const typeLabel =
+    item.type === "mural" ? "Mural" : item.type === "carpentry" ? "Carpentry" : "Work";
+
+  const categoryLabel =
+    item.category === "outdoor" ? "Outdoor" : item.category === "indoor" ? "Indoor" : "Location";
 
   return (
     <main className="min-h-screen p-8 max-w-5xl mx-auto">
@@ -72,20 +97,18 @@ export default function PortfolioDetailPage() {
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold mt-6">{item.title}</h1>
+      <h1 className="text-3xl font-bold mt-6">{item.title || "Untitled"}</h1>
 
       <div className="mt-3 flex flex-wrap gap-2 text-sm">
-        <span className="px-2 py-1 rounded bg-gray-100">
-          {item.type === "mural" ? "Mural" : "Carpentry"}
-        </span>
-        <span className="px-2 py-1 rounded bg-gray-100">
-          {item.category === "outdoor" ? "Outdoor" : "Indoor"}
-        </span>
-        {item.tags?.map((t) => (
-          <span key={t} className="px-2 py-1 rounded bg-gray-100">
-            {t}
-          </span>
-        ))}
+        <span className="px-2 py-1 rounded bg-gray-100">{typeLabel}</span>
+        <span className="px-2 py-1 rounded bg-gray-100">{categoryLabel}</span>
+
+        {Array.isArray(item.tags) &&
+          item.tags.map((t) => (
+            <span key={t} className="px-2 py-1 rounded bg-gray-100">
+              {t}
+            </span>
+          ))}
       </div>
 
       {item.description ? (
@@ -95,10 +118,10 @@ export default function PortfolioDetailPage() {
       <section className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {images.length ? (
           images.map((url, idx) => (
-            <div key={idx} className="border rounded-lg overflow-hidden bg-gray-100">
+            <div key={url + idx} className="border rounded-lg overflow-hidden bg-gray-100">
               <img
                 src={url}
-                alt={`${item.title} image ${idx + 1}`}
+                alt={`${item.title || "Portfolio"} image ${idx + 1}`}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />

@@ -166,7 +166,7 @@ variant="deepRoseNoir"
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="First name *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.firstName}
               onChange={(e) => set("firstName", e.target.value)}
             />
@@ -174,7 +174,7 @@ variant="deepRoseNoir"
 
           <Field label="Last name *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.lastName}
               onChange={(e) => set("lastName", e.target.value)}
             />
@@ -182,7 +182,7 @@ variant="deepRoseNoir"
 
           <Field label="Email *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
             />
@@ -190,7 +190,7 @@ variant="deepRoseNoir"
 
           <Field label="Phone *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.phone}
               onChange={(e) => set("phone", e.target.value)}
             />
@@ -198,7 +198,7 @@ variant="deepRoseNoir"
 
           <Field label="Business name (optional)">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.businessName}
               onChange={(e) => set("businessName", e.target.value)}
             />
@@ -210,7 +210,7 @@ variant="deepRoseNoir"
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="Address line *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.addressLine1}
               onChange={(e) => set("addressLine1", e.target.value)}
             />
@@ -218,7 +218,7 @@ variant="deepRoseNoir"
 
           <Field label="City *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.city}
               onChange={(e) => set("city", e.target.value)}
             />
@@ -226,7 +226,7 @@ variant="deepRoseNoir"
 
           <Field label="State *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.state}
               onChange={(e) => set("state", e.target.value)}
             />
@@ -234,7 +234,7 @@ variant="deepRoseNoir"
 
           <Field label="Zip *">
             <input
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.zip}
               onChange={(e) => set("zip", e.target.value)}
             />
@@ -247,7 +247,7 @@ variant="deepRoseNoir"
           <Field label="Preferred date *">
             <input
               type="date"
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.preferredDate}
               onChange={(e) => set("preferredDate", e.target.value)}
             />
@@ -256,7 +256,7 @@ variant="deepRoseNoir"
           <Field label="Preferred time *">
             <input
               type="time"
-              className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 outline-none focus:ring-2 focus:ring-black/10"
+              className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 outline-none focus:ring-2 focus:ring-black/20"
               value={form.preferredTime}
               onChange={(e) => set("preferredTime", e.target.value)}
             />
@@ -270,7 +270,7 @@ variant="deepRoseNoir"
             Comments (max 500)
           </label>
           <textarea
-            className="w-full rounded-lg border border-black/10 bg-white/80 p-2.5 min-h-[140px] outline-none focus:ring-2 focus:ring-black/10"
+            className="w-full rounded-lg border border-black/20 bg-white text-black placeholder:text-gray-500 p-2.5 min-h-[140px] outline-none focus:ring-2 focus:ring-black/20"
             value={form.comments}
             maxLength={500}
             onChange={(e) => set("comments", e.target.value)}
@@ -352,7 +352,9 @@ variant="deepRoseNoir"
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm mb-1 text-gray-800">{label}</label>
+      <label className="block text-sm mb-1 text-white/90">
+        {label}
+      </label>
       {children}
     </div>
   );

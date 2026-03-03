@@ -109,7 +109,10 @@ export default function AdminTeesPage() {
         const safeName = f.name.replace(/[^\w.\-]+/g, "_");
         const path = `tees/${productId}/${Date.now()}_${i}_${safeName}`;
         setStatus(`Uploading ${i + 1}/${files.length}…`);
-        const url = await uploadFile(f, path);
+    const url = await uploadFile(
+  f,
+  `teeProducts/${productId}/`
+);
         urls.push(url);
       }
 

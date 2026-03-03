@@ -1,8 +1,8 @@
-// src/app/tees/page.tsx
-
+// src/app/graphic-design/tshirts/page.tsx
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -52,7 +52,7 @@ function normalizeProduct(id: string, data: any): TeeProduct {
   };
 }
 
-export default function TeesPage() {
+export default function TshirtsPage() {
   const [items, setItems] = useState<TeeProduct[]>([]);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState<string>("");
@@ -77,7 +77,7 @@ export default function TeesPage() {
         if (alive) setItems(list);
       } catch (e: any) {
         console.error("TEE LOAD ERROR:", e);
-        if (alive) setError(e?.message || "Failed to load tees.");
+        if (alive) setError(e?.message || "Failed to load tshirts.");
       } finally {
         if (alive) setBusy(false);
       }
@@ -135,14 +135,16 @@ export default function TeesPage() {
                 return (
                   <Link
                     key={p.id}
-                    href={`/tees/${p.id}`}
+                    href={`/graphic-design/tshirts/${p.id}`}
                     className="group rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition overflow-hidden"
                   >
-                    <div className="aspect-[4/3] bg-black/30">
-                      <img
+                    <div className="relative aspect-[4/3] bg-black/30">
+                      <Image
                         src={p.images?.[0] || "/hero.jpg"}
-                        alt={p.title}
-                        className="h-full w-full object-cover opacity-90 group-hover:opacity-100 transition"
+                        alt={p.title || "T-shirt"}
+                        fill
+                        className="object-cover opacity-90 group-hover:opacity-100 transition"
+                        sizes="(max-width: 1024px) 100vw, 33vw"
                       />
                     </div>
 
@@ -166,11 +168,7 @@ export default function TeesPage() {
                             <span
                               key={`${p.id}-${c.name}-${i}`}
                               title={c.name}
-                              className={`h-5 w-5 rounded-full ring-1 ring-white/15 ${
-                                c.hex === "tiedye"
-                                  ? "bg-[conic-gradient(at_50%_50%,#22c55e,#3b82f6,#ec4899,#a855f7,#f59e0b,#22c55e)]"
-                                  : ""
-                              }`}
+                              className={`h-5 w-5 rounded-full ring-1 ring-white/15 ${c.hex === "tiedye" ? "bg-[conic-gradient(at_50%_50%,#22c55e,#3b82f6,#ec4899,#a855f7,#f59e0b,#22c55e)]" : ""}`}
                               style={c.hex !== "tiedye" ? { backgroundColor: c.hex } : undefined}
                             />
                           ))}
