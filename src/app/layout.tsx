@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Cinzel_Decorative } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,6 +12,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// ✅ New: calligraphy / gallery-style title font (optional use)
+const displayFont = Cinzel_Decorative({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-display",
+});
+
 export const metadata: Metadata = {
   title: {
     default: "Creative Edge | Joshua Schultz",
@@ -22,13 +29,12 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://hope12.netlify.app"),
   openGraph: {
     title: "Creative Edge | Joshua Schultz",
-    description:
-      "Murals, graphic tees, studio artwork, and creative builds.",
+    description: "Murals, graphic tees, studio artwork, and creative builds.",
     url: "https://hope12.netlify.app",
     siteName: "Creative Edge",
     images: [
       {
-        url: "/hero.jpg", // make sure this exists in /public
+        url: "/hero.jpg",
         width: 1200,
         height: 630,
         alt: "Creative Edge artwork preview",
@@ -40,8 +46,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Creative Edge | Joshua Schultz",
-    description:
-      "Murals, graphic tees, studio artwork, and creative builds.",
+    description: "Murals, graphic tees, studio artwork, and creative builds.",
     images: ["/hero.jpg"],
   },
 };
@@ -54,7 +59,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950 text-white`}
+        className={[
+          geistSans.variable,
+          geistMono.variable,
+          displayFont.variable, // ✅ added
+          "antialiased bg-neutral-950 text-white",
+        ].join(" ")}
       >
         <div className="min-h-screen flex flex-col">
           <main className="flex-1">{children}</main>

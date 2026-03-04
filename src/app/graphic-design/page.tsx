@@ -1,5 +1,5 @@
 // src/app/graphic-design/page.tsx
-"use client";
+
 
 import Link from "next/link";
 import SoftPageShell from "@/components/SoftPageShell";

@@ -2,14 +2,24 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import PortfolioGalleryModal from "@/components/PortfolioGalleryModal";
-import { getPortfolioItemsPaged, PortfolioFilters, PortfolioItem } from "@/lib/portfolio";
+import {
+  getPortfolioItemsPaged,
+  PortfolioFilters,
+  PortfolioItem,
+} from "@/lib/portfolio";
 
 type Cursor = any;
 
 type ItemType = "mural" | "carpentry" | "graphic-design" | "signage";
 type IndoorOutdoor = "indoor" | "outdoor";
-type GraphicDesignCategory = "logos" | "tshirts" | "album-covers" | "show-posters" | "events";
+type GraphicDesignCategory =
+  | "logos"
+  | "tshirts"
+  | "album-covers"
+  | "show-posters"
+  | "events";
 type Category = IndoorOutdoor | GraphicDesignCategory;
 
 const GRAPHIC_CATEGORIES: GraphicDesignCategory[] = [
@@ -55,7 +65,9 @@ export default function PortfolioBrowser({
   // Filters
   const seededActive = initialFilters?.active ?? true;
 
-  const [featuredOnly, setFeaturedOnly] = useState(Boolean(initialFilters?.featured));
+  const [featuredOnly, setFeaturedOnly] = useState(
+    Boolean(initialFilters?.featured)
+  );
   const [type, setType] = useState<ItemType | "all">(
     (initialFilters?.type as any) ?? "all"
   );
@@ -239,47 +251,97 @@ export default function PortfolioBrowser({
           </label>
 
           {!lockType && (
-            <select className={selectClass} value={type} onChange={(e) => setType(e.target.value as any)}>
-              <option className="text-black bg-white" value="all">All types</option>
-              <option className="text-black bg-white" value="mural">Mural</option>
-              <option className="text-black bg-white" value="carpentry">Carpentry</option>
-              <option className="text-black bg-white" value="graphic-design">Graphic Design</option>
-              <option className="text-black bg-white" value="signage">Signage</option>
+            <select
+              className={selectClass}
+              value={type}
+              onChange={(e) => setType(e.target.value as any)}
+            >
+              <option className="text-black bg-white" value="all">
+                All types
+              </option>
+              <option className="text-black bg-white" value="mural">
+                Mural
+              </option>
+              <option className="text-black bg-white" value="carpentry">
+                Carpentry
+              </option>
+              <option className="text-black bg-white" value="graphic-design">
+                Graphic Design
+              </option>
+              <option className="text-black bg-white" value="signage">
+                Signage
+              </option>
             </select>
           )}
 
           {!lockCategory && (
-            <select className={selectClass} value={category} onChange={(e) => setCategory(e.target.value as any)}>
-              <option className="text-black bg-white" value="all">All categories</option>
+            <select
+              className={selectClass}
+              value={category}
+              onChange={(e) => setCategory(e.target.value as any)}
+            >
+              <option className="text-black bg-white" value="all">
+                All categories
+              </option>
 
               {type === "graphic-design" ? (
                 <>
-                  <option className="text-black bg-white" value="logos">/graphic-design/logos</option>
-                  <option className="text-black bg-white" value="tshirts">/graphic-design/tshirts</option>
-                  <option className="text-black bg-white" value="album-covers">/graphic-design/album-covers</option>
-                  <option className="text-black bg-white" value="show-posters">/graphic-design/show-posters</option>
-                  <option className="text-black bg-white" value="events">/graphic-design/events</option>
+                  <option className="text-black bg-white" value="logos">
+                    /graphic-design/logos
+                  </option>
+                  <option className="text-black bg-white" value="tshirts">
+                    /graphic-design/tshirts
+                  </option>
+                  <option className="text-black bg-white" value="album-covers">
+                    /graphic-design/album-covers
+                  </option>
+                  <option className="text-black bg-white" value="show-posters">
+                    /graphic-design/show-posters
+                  </option>
+                  <option className="text-black bg-white" value="events">
+                    /graphic-design/events
+                  </option>
                 </>
               ) : (
                 <>
-                  <option className="text-black bg-white" value="indoor">Indoor</option>
-                  <option className="text-black bg-white" value="outdoor">Outdoor</option>
+                  <option className="text-black bg-white" value="indoor">
+                    Indoor
+                  </option>
+                  <option className="text-black bg-white" value="outdoor">
+                    Outdoor
+                  </option>
                 </>
               )}
             </select>
           )}
 
-          <select className={selectClass} value={location} onChange={(e) => setLocation(e.target.value as any)}>
-            <option className="text-black bg-white" value="all">All locations</option>
+          <select
+            className={selectClass}
+            value={location}
+            onChange={(e) => setLocation(e.target.value as any)}
+          >
+            <option className="text-black bg-white" value="all">
+              All locations
+            </option>
             {allLocations.map((x) => (
-              <option className="text-black bg-white" key={x} value={x}>{x}</option>
+              <option className="text-black bg-white" key={x} value={x}>
+                {x}
+              </option>
             ))}
           </select>
 
-          <select className={selectClass} value={clientName} onChange={(e) => setClientName(e.target.value as any)}>
-            <option className="text-black bg-white" value="all">All clients</option>
+          <select
+            className={selectClass}
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value as any)}
+          >
+            <option className="text-black bg-white" value="all">
+              All clients
+            </option>
             {allClients.map((x) => (
-              <option className="text-black bg-white" key={x} value={x}>{x}</option>
+              <option className="text-black bg-white" key={x} value={x}>
+                {x}
+              </option>
             ))}
           </select>
 
@@ -323,7 +385,9 @@ export default function PortfolioBrowser({
       ) : items.length === 0 ? (
         <div className="mt-10 rounded-2xl bg-white/5 border border-white/10 p-8 text-center">
           <div className="text-xl font-semibold">No results</div>
-          <div className="text-white/70 mt-2">Try clearing filters or using a different tag.</div>
+          <div className="text-white/70 mt-2">
+            Try clearing filters or using a different tag.
+          </div>
         </div>
       ) : (
         <>
@@ -335,25 +399,36 @@ export default function PortfolioBrowser({
                 className="text-left rounded-2xl bg-white/5 border border-white/10 overflow-hidden hover:bg-white/10 transition"
               >
                 <article>
+                  {/* Image area links to project page; does NOT open modal */}
                   <div className="relative h-52 w-full bg-white/5">
-                    {it.coverImageUrl ? (
-                      <Image
-                        src={it.coverImageUrl}
-                        alt={it.title || "Portfolio item"}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 100vw, 33vw"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-white/40 text-sm">
-                        No image
-                      </div>
-                    )}
+                    <Link
+                      href={`/portfolio/item/${it.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute inset-0"
+                      aria-label={`Open ${it.title || "project"}`}
+                      title="Open project page"
+                    >
+                      {it.coverImageUrl ? (
+                        <Image
+                          src={it.coverImageUrl}
+                          alt={it.title || "Portfolio item"}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 1024px) 100vw, 33vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-white/40 text-sm">
+                          No image
+                        </div>
+                      )}
+                    </Link>
                   </div>
 
                   <div className="p-4">
                     <div className="flex items-center justify-between gap-2">
-                      <h2 className="font-semibold text-lg truncate">{it.title || "Untitled"}</h2>
+                      <h2 className="font-semibold text-lg truncate">
+                        {it.title || "Untitled"}
+                      </h2>
                       {it.featured ? (
                         <span className="text-xs px-2 py-1 rounded bg-white/10 border border-white/10">
                           Featured
@@ -362,11 +437,15 @@ export default function PortfolioBrowser({
                     </div>
 
                     <div className="text-sm text-white/70 mt-1">
-                      {[it.type, it.category, it.clientName, it.location].filter(Boolean).join(" • ")}
+                      {[it.type, it.category, it.clientName, it.location]
+                        .filter(Boolean)
+                        .join(" • ")}
                     </div>
 
                     {it.description ? (
-                      <p className="text-sm text-white/75 mt-3 line-clamp-3">{it.description}</p>
+                      <p className="text-sm text-white/75 mt-3 line-clamp-3">
+                        {it.description}
+                      </p>
                     ) : null}
 
                     {Array.isArray(it.tags) && it.tags.length > 0 ? (
@@ -406,6 +485,7 @@ export default function PortfolioBrowser({
       <PortfolioGalleryModal
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
+        id={selected?.id} // ✅ NEW: enables "View Project →" inside the modal
         title={selected?.title}
         description={selected?.description}
         coverImageUrl={selected?.coverImageUrl}

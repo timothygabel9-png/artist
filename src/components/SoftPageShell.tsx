@@ -175,9 +175,12 @@ export default function SoftPageShell({
       <div className={`relative z-10 mx-auto ${maxWidth} px-6 py-10`}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className={`text-3xl md:text-4xl font-semibold tracking-tight ${titleClass}`}>
-              {title}
-            </h1>
+            <h1
+  className={`font-display title-shimmer text-5xl md:text-6xl font-semibold tracking-[0.12em] ${titleClass}`}
+>
+  {title}
+</h1>
+            <div className="mt-4 h-px w-32 bg-gradient-to-r from-white/10 via-white/60 to-white/10" />
             {subtitle ? <p className={`mt-2 ${subClass}`}>{subtitle}</p> : null}
           </div>
 

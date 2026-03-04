@@ -11,11 +11,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   const isLoginRoute = pathname === "/admin/login";
-
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // ✅ If we're on the login page, don't run the gate logic
     if (isLoginRoute) {
       setReady(true);
       return;
@@ -45,16 +43,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return () => unsub();
   }, [router, isLoginRoute]);
 
-  // ✅ If we're on login, always render it (ready is set true above)
+  // Login page can keep its own styling
   if (isLoginRoute) return <>{children}</>;
 
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
+      <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center text-sm text-white/60">
         Checking admin access…
       </div>
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen bg-neutral-950 text-white">
+      {children}
+    </div>
+  );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import { getAboutPublished } from "@/lib/content/about";
+import HeroRotator from "@/components/HeroRotator";
 
 const ABOUT_FALLBACK = {
   title: "About Joshua Schultz",
@@ -39,101 +40,63 @@ export default async function HomePage() {
     <main className="relative min-h-screen">
       <SiteHeader />
 
-      {/* Hero */}
-      <section className="relative min-h-screen">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/hero.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-black/55" />
+{/* Hero */}
+<section className="relative h-screen w-full overflow-hidden">
+  {/* Full-bleed rotating background */}
+  <div className="absolute inset-0">
+    <HeroRotator
+      images={[
+        { src: "/hero/1.jpg", alt: "Hero 1" },
+        { src: "/hero/2.jpg", alt: "Hero 2" },
+        { src: "/hero/3.jpg", alt: "Hero 3" },
+        { src: "/hero/4.jpg", alt: "Hero 4" },
+        { src: "/hero/5.jpg", alt: "Hero 5" },
+        { src: "/hero/6.jpg", alt: "Hero 6" },
+        { src: "/hero/7.jpg", alt: "Hero 7" },
+      ]}
+      intervalMs={6500}
+      fadeMs={1600}
+    />
+  </div>
 
-        <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 pt-20">
-          <p className="text-white/80 text-sm tracking-widest uppercase">
-            Murals • Graphic Design • Studio Work
-          </p>
+  {/* Dark overlay for readability */}
+  <div className="absolute inset-0 bg-black/55" />
 
-          <h1 className="mt-4 max-w-3xl text-white text-4xl md:text-6xl font-semibold leading-tight">
-            Bold art for Residental, Commercal, and spaces people remember.
-          </h1>
+  {/* Content */}
+  <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col justify-center px-6 pt-24">
+    <p className="text-white/80 text-sm tracking-widest uppercase">
+      Murals • Graphic Design • Studio Work
+    </p>
 
-          <p className="mt-4 max-w-2xl text-white/85 text-base md:text-lg">
-            Creative Edge brings indoor/outdoor murals, original graphic designs, and hands-on
-            creative builds to life — inspired by music, shaped by travel, and grounded in
-            the communities that support the work.
-          </p>
+    <h1 className="mt-4 max-w-3xl text-white text-4xl md:text-6xl font-semibold leading-tight">
+      Bold art for Residential, Commercial, and spaces people remember.
+    </h1>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/portfolio"
-              className="rounded-md bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-white/90"
-            >
-              View Portfolio
-            </Link>
-            <Link
-              href="/request-meeting"
-              className="rounded-md border border-white/60 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
-            >
-              Request a Meeting
-            </Link>
-          </div>
+    <p className="mt-4 max-w-2xl text-white/85 text-base md:text-lg">
+      Creative Edge brings indoor/outdoor murals, original graphic designs, and hands-on
+      creative builds to life — inspired by music, shaped by travel, and grounded in
+      the communities that support the work.
+    </p>
 
-          <div className="mt-12">
-            <div className="inline-flex flex-wrap items-center gap-2 rounded-full bg-black/35 p-2 backdrop-blur">
-              <HeroPill href="/portfolio" label="Portfolio" />
-              <HeroPill href="/tees" label="Graphic Tees" />
-              <HeroPill href="/media" label="Media" />
-              <HeroPill href="/studio" label="Studio" />
-              <HeroPill href="/request-meeting" label="Request Meeting" />
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="mt-8 flex flex-wrap gap-3">
+      <Link
+        href="/portfolio"
+        className="rounded-md bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-white/90"
+      >
+        View Portfolio
+      </Link>
+      <Link
+        href="/request-meeting"
+        className="rounded-md border border-white/60 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+      >
+        Request a Meeting
+      </Link>
+    </div>
 
-      {/* About */}
-      <section className="bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
-          <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:items-start">
-            <div className="md:col-span-5">
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
-                {about.title}
-              </h2>
+    {/* Pills pinned near bottom of hero */}
 
-              {about.paragraphs.map((p, idx) => (
-                <p key={idx} className="mt-4 text-gray-700 leading-relaxed">
-                  {p}
-                </p>
-              ))}
-
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/request-meeting"
-                  className="rounded-md bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-black/90"
-                >
-                  Request a Meeting
-                </Link>
-                <Link
-                  href="/portfolio"
-                  className="rounded-md border border-black/20 px-5 py-3 text-sm font-semibold text-black hover:bg-black/5"
-                >
-                  See Completed Work
-                </Link>
-              </div>
-            </div>
-
-            <div className="md:col-span-7">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {about.cards.map((c, idx) => (
-                  <AboutCard key={idx} title={c.title} body={c.body} />
-                ))}
-              </div>
-
-              <div className="mt-6 rounded-lg border bg-gray-50 p-5">
-                <p className="text-sm text-gray-700">{about.ctaNote}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+  </div>
+</section>
     </main>
   );
 }
