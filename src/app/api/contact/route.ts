@@ -13,15 +13,17 @@ export async function POST(req: Request) {
     }
 
     const apiKey = process.env.RESEND_API_KEY;
-    const to = process.env.CONTACT_TO_EMAIL;
+    const toEnv = process.env.CONTACT_TO_EMAIL;
     const from = process.env.CONTACT_FROM_EMAIL;
 
-    if (!apiKey || !to || !from) {
+    if (!apiKey || !toEnv || !from) {
       return NextResponse.json(
         { ok: false, error: "Server email env vars not configured" },
         { status: 500 }
       );
     }
+
+    const to = toEnv.split(",").map((e) => e.trim());
 
     const resend = new Resend(apiKey);
 
