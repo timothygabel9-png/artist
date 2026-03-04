@@ -192,7 +192,7 @@ export async function getPortfolioItemsPaged(opts?: {
 
     const nextCursor = docs.length === pageSize ? docs[docs.length - 1] : null;
 
-    return { items, nextCursor, usedOrdering: field as const };
+    return { items, nextCursor, usedOrdering: field };
   };
 
   try {
@@ -215,7 +215,7 @@ export async function getPortfolioItemsPaged(opts?: {
 
       const nextCursor = docs.length === pageSize ? docs[docs.length - 1] : null;
 
-      return { items, nextCursor, usedOrdering: "none" as const };
+      return { items, nextCursor, usedOrdering: "none" };
     }
   }
 }

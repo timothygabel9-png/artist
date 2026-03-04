@@ -34,7 +34,11 @@ const sections = [
 
 export default function GraphicDesignLandingPage() {
   return (
-    <SoftPageShell variant="oceanNoir">
+    <SoftPageShell
+  title="Graphic Design"
+  subtitle="Logos, tees, album covers, posters, and more"
+  variant="oceanNoir"
+>
       <main className="mx-auto w-full max-w-6xl px-6 py-10 text-white">
         <div className="flex items-start justify-between gap-4">
           <div>

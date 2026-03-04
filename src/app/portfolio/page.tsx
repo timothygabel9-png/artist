@@ -164,7 +164,11 @@ export default function PortfolioPage() {
   }, [filters]);
 
   return (
-    <SoftPageShell variant="oceanNoir">
+    <SoftPageShell
+  title="Portfolio"
+  subtitle="Murals, graphic design, signage, and creative work"
+  variant="oceanNoir"
+>
       <main className="mx-auto w-full max-w-6xl px-4 py-10 text-white">
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>

@@ -154,12 +154,10 @@ export default function RequestMeetingPage() {
   }
 
   return (
-    <SoftPageShell
-      title="Request a Meeting"
-      subtitle="Share a few details and your preferred time — we’ll follow up to confirm."
-variant="deepRoseNoir"
-      maxWidth="max-w-3xl"
-    >
+<SoftPageShell
+  title="Request a Meeting"
+  subtitle="Discuss murals, graphic design, signage, or custom work"
+>
       <form onSubmit={handleSubmit} className="space-y-4">
         <SectionTitle>Contact</SectionTitle>
 
