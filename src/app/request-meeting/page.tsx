@@ -337,11 +337,6 @@ export default function RequestMeetingPage() {
         </button>
 
         {status && <p className="text-sm mt-2">{status}</p>}
-
-        <p className="pt-2 text-xs text-gray-600">
-          Prefer email? Send details to{" "}
-          <span className="font-medium">timothy.gabel9@gmail.com</span>.
-        </p>
       </form>
     </SoftPageShell>
   );
