@@ -20,7 +20,7 @@ const heroSlides: HeroSlide[] = [
     title: "Joshua Schultz",
     signature: true,
     blurb:
-      "Origanl designs that expands the mind ",
+      "Original designs that expands the mind ",
   },
   {
     src: "/hero/3.jpg",
