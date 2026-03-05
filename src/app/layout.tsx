@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cinzel_Decorative } from "next/font/google";
 import "./globals.css";
 import { Playfair_Display } from "next/font/google";
+import SiteHeader from "@/components/SiteHeader";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -66,25 +67,30 @@ export default function RootLayout({
   return (
     <html lang="en">
       
-      <body
-        className={[
-          geistSans.variable,
-          geistMono.variable,
-          displayFont.variable, // ✅ added
-          "antialiased bg-neutral-950 text-white",
-        ].join(" ")}
-      >
-        <div className="min-h-screen flex flex-col">
-          <main className="flex-1">{children}</main>
+<body
+className={[
+  playfair.variable,
+  geistSans.variable,
+  geistMono.variable,
+  displayFont.variable,
+  "antialiased bg-neutral-950 text-white",
+].join(" ")}
+>
 
-          <footer className="border-t border-white/10 py-8 text-center text-sm text-white/60">
-            <div className="space-y-2">
-              <p>© {new Date().getFullYear()} Creative Edge</p>
-              <p>Aurora, IL • Murals • Tees • Studio Work</p>
-            </div>
-          </footer>
-        </div>
-      </body>
+  <SiteHeader />   {/* <-- ADD IT HERE */}
+
+  <div className="min-h-screen flex flex-col pt-16">
+    <main className="flex-1">{children}</main>
+
+    <footer className="border-t border-white/10 py-8 text-center text-sm text-white/60">
+      <div className="space-y-2">
+        <p>© {new Date().getFullYear()} Creative Edge</p>
+        <p>Aurora, IL • Murals • Tees • Studio Work</p>
+      </div>
+    </footer>
+  </div>
+
+</body>
     </html>
   );
 }
