@@ -1,6 +1,4 @@
-import SiteHeader from "@/components/SiteHeader";
 import HeroRotator, { HeroSlide } from "@/components/HeroRotator";
-import Link from "next/link";
 import { getAboutPublished } from "@/lib/content/about";
 
 const heroSlides: HeroSlide[] = [
@@ -10,8 +8,7 @@ const heroSlides: HeroSlide[] = [
     kicker: "Murals • Graphic Design • Studio Work",
     title: "Joshua Schultz",
     signature: true,
-    blurb:
-      "Work that fits the space and the story, built to feel like it belongs there.",
+    blurb: "Work that fits the space and the story, built to feel like it belongs there.",
   },
   {
     src: "/hero/2.jpg",
@@ -19,8 +16,7 @@ const heroSlides: HeroSlide[] = [
     kicker: "Community • Craft • Color",
     title: "Joshua Schultz",
     signature: true,
-    blurb:
-      "Original designs that expands the mind ",
+    blurb: "Original designs that expands the mind",
   },
   {
     src: "/hero/3.jpg",
@@ -28,17 +24,15 @@ const heroSlides: HeroSlide[] = [
     kicker: "Indoor / Outdoor",
     title: "Joshua Schultz",
     signature: true,
-    blurb:
-      "Built not just painted, illistrations that can make one think.",
+    blurb: "Built not just painted, illustrations that can make one think.",
   },
-    {
+  {
     src: "/hero/4.jpg",
     alt: "Hero image 4",
     kicker: "Indoor / Outdoor",
     title: "Joshua Schultz",
     signature: true,
-    blurb:
-      "Outdoor work for any situation or institute.",
+    blurb: "Outdoor work for any situation or institute.",
   },
   {
     src: "/hero/5.jpg",
@@ -46,43 +40,42 @@ const heroSlides: HeroSlide[] = [
     kicker: "Indoor / Outdoor",
     title: "Joshua Schultz",
     signature: true,
-    blurb:
-      "Working together to brighten up communities and expand brands.",
+    blurb: "Working together to brighten up communities and expand brands.",
   },
-    {
+  {
     src: "/hero/6.jpg",
     alt: "Hero image 6",
     kicker: "Indoor / Outdoor",
     title: "Joshua Schultz",
     signature: true,
-    blurb:
-      "Creating spaces that people will remember",
-     },
-         {
+    blurb: "Creating spaces that people will remember",
+  },
+  {
     src: "/hero/8.jpg",
     alt: "Hero image 8",
     kicker: "Indoor / Outdoor",
     title: "Joshua Schultz",
     signature: true,
-    blurb:
-      "Bringing Energy to the communities from Aurora and beyond",
-     },
-  
-  // add 4..7 the same way
+    blurb: "Bringing energy to the communities from Aurora and beyond",
+  },
 ];
 
 export default async function HomePage() {
   const about = (await getAboutPublished()) ?? null;
 
   return (
-    <main className="relative min-h-screen">
-      <SiteHeader />
-
+    <main className="relative">
       {/* HERO */}
-      <HeroRotator slides={heroSlides} intervalMs={11000} fadeMs={2600} />
+      <div className="min-h-[calc(100svh-4rem)]">
+        <HeroRotator slides={heroSlides} intervalMs={11000} fadeMs={2600} />
+      </div>
 
-      {/* ABOUT (your existing section) */}
-      {/* ...keep your About section below... */}
+      {/* ABOUT (keep/restore your About section below as needed) */}
+      {/* Example:
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        ...
+      </section>
+      */}
     </main>
   );
 }

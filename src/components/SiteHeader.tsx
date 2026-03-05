@@ -42,11 +42,7 @@ export default function SiteHeader() {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm text-white/90">
           {nav.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className="hover:text-white transition"
-            >
+            <Link key={n.href} href={n.href} className="hover:text-white transition">
               {n.label}
             </Link>
           ))}
@@ -74,51 +70,34 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile dropdown + backdrop */}
-      <div
-        className={[
-          "md:hidden relative",
-          "transition-[max-height,opacity] duration-200 ease-out",
-          open ? "opacity-100" : "opacity-0 pointer-events-none",
-        ].join(" ")}
-        aria-hidden={!open}
-      >
-        {/* click-off backdrop (only covers below header) */}
-        <div
-          className={[
-            "fixed left-0 right-0 top-16 bottom-0",
-            open ? "bg-black/30" : "bg-transparent",
-            "transition-colors duration-200",
-          ].join(" ")}
-          onMouseDown={() => setOpen(false)}
-        />
+      {/* Mobile dropdown + backdrop (only exists when open) */}
+      {open && (
+        <div className="md:hidden">
+          {/* click-off backdrop (below header only) */}
+          <div
+            className="fixed left-0 right-0 top-16 bottom-0 bg-black/30"
+            onMouseDown={() => setOpen(false)}
+          />
 
-        {/* panel */}
-        <div
-          className={[
-            "relative border-t border-white/10",
-            "bg-black/55 backdrop-blur-md",
-            "origin-top",
-            "transform transition-transform duration-200 ease-out",
-            open ? "translate-y-0" : "-translate-y-2",
-          ].join(" ")}
-        >
-          <div className="mx-auto max-w-6xl px-6 py-3">
-            <nav className="grid gap-2">
-              {nav.map((n) => (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-white transition"
-                >
-                  {n.label}
-                </Link>
-              ))}
-            </nav>
+          {/* panel */}
+          <div className="fixed left-0 right-0 top-16 z-50 border-t border-white/10 bg-black/55 backdrop-blur-md">
+            <div className="mx-auto max-w-6xl px-6 py-3">
+              <nav className="grid gap-2">
+                {nav.map((n) => (
+                  <Link
+                    key={n.href}
+                    href={n.href}
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-white transition"
+                  >
+                    {n.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* subtle divider */}
       <div className="relative h-px bg-white/10" />
