@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Props = {
   open: boolean;
@@ -82,6 +83,8 @@ export default function PortfolioGalleryModal({
   coverImageUrl,
   imageUrls,
 }: Props) {
+  const router = useRouter();
+
   const images = useMemo(() => {
     const merged = [coverImageUrl, ...(imageUrls || [])].filter(Boolean) as string[];
     return uniq(merged);
@@ -217,29 +220,35 @@ export default function PortfolioGalleryModal({
                 </span>
               </button>
 
-              {/* View Project */}
-              {id && (
-                <Link
-                  href={`/portfolio/item/${id}`}
-                  onClick={() => setIsPlaying(false)}
-                  className="hidden sm:inline-flex rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10"
-                >
-                  View Project →
-                </Link>
-              )}
+{/* View Project */}
+{id && (
+  <button
+    type="button"
+    onMouseDown={(e) => e.stopPropagation()}
+    onClick={(e) => {
+      e.stopPropagation();
+      setIsPlaying(false);
+      onClose(); // close the modal so it doesn't look like nothing happened
+      router.push(`/portfolio/item/${id}`);
+    }}
+    className="relative z-50 hidden sm:inline-flex rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10"
+  >
+    View Project →
+  </button>
+)}
 
               {/* Speed */}
               <select
                 value={intervalMs}
                 onChange={(e) => setIntervalMs(Number(e.target.value))}
-                className="hidden sm:block rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-sm text-white"
-              >
-                <option value={1500}>Very Fast</option>
-                <option value={2500}>Fast</option>
-                <option value={3500}>Normal</option>
-                <option value={5000}>Slow</option>
-                <option value={7000}>Very Slow</option>
-              </select>
+                 className="hidden sm:block rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-white"
+>
+  <option className="bg-white text-black" value={1500}>Very Fast</option>
+  <option className="bg-white text-black" value={2500}>Fast</option>
+  <option className="bg-white text-black" value={3500}>Normal</option>
+  <option className="bg-white text-black" value={5000}>Slow</option>
+  <option className="bg-white text-black" value={7000}>Very Slow</option>
+</select>
 
               {/* Close */}
               <button

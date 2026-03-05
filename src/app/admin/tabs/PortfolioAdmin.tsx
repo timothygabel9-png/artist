@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { softDeletePortfolioItem } from "@/lib/adminActions";
 import { Row, Button } from "./AdminUI";
 import Link from "next/link";
+
 type Item = { id: string; title?: string; active?: boolean };
 
 export default function PortfolioAdmin() {
@@ -13,7 +14,13 @@ export default function PortfolioAdmin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, "portfolioItems"), orderBy("createdAt", "desc"));
+    // Only listen to active items
+    const q = query(
+      collection(db, "portfolioItems"),
+      where("active", "==", true),
+      orderBy("createdAt", "desc")
+    );
+
     return onSnapshot(
       q,
       (snap) => {
@@ -29,24 +36,24 @@ export default function PortfolioAdmin() {
 
   return (
     <div>
-<div className="flex flex-wrap items-center justify-between gap-3">
-  <div>
-    <h2 className="text-lg font-semibold">Portfolio</h2>
-    <p className="mt-1 text-sm text-white/60">
-      Remove = <b>soft delete</b> (sets{" "}
-      <code className="text-white/80">active:false</code>)
-    </p>
-  </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">Portfolio</h2>
+          <p className="mt-1 text-sm text-white/60">
+            Remove = <b>soft delete</b> (sets{" "}
+            <code className="text-white/80">active:false</code>)
+          </p>
+        </div>
 
-  <Link
-    href="/admin/portfolio"
-    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/80 hover:bg-white/10"
-  >
-    Upload / Edit
-  </Link>
-</div>
+        <Link
+          href="/admin/portfolio"
+          className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/80 hover:bg-white/10"
+        >
+          Upload / Edit
+        </Link>
+      </div>
 
-<div className="mt-5 grid gap-3">
+      <div className="mt-5 grid gap-3">
         {loading && <div className="text-sm text-white/60">Loading…</div>}
         {!loading && items.length === 0 && (
           <div className="text-sm text-white/60">No items found.</div>
@@ -58,17 +65,16 @@ export default function PortfolioAdmin() {
             title={it.title || "Untitled"}
             subtitle={`active: ${String(it.active)}`}
             right={
-              <>
-                <Button
-                  variant="danger"
-                  onClick={async () => {
-                    if (!confirm("Hide this portfolio item? (active=false)")) return;
-                    await softDeletePortfolioItem(it.id);
-                  }}
-                >
-                  Remove (Hide)
-                </Button>
-              </>
+              <Button
+                variant="danger"
+                onClick={async () => {
+                  if (!confirm("Hide this portfolio item? (active=false)")) return;
+                  await softDeletePortfolioItem(it.id);
+                  // No manual state update needed — onSnapshot will remove it automatically
+                }}
+              >
+                Remove (Hide)
+              </Button>
             }
           />
         ))}

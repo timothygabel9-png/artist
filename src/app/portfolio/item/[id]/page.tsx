@@ -11,7 +11,7 @@ export default async function PortfolioItemPage({
   const { id } = await params;
 
   return (
-    <SoftPageShell title="Portfolio Item" variant="oceanNoir">
+    <SoftPageShell title="Portfolio" variant="oceanNoir">
       <main className="mx-auto w-full max-w-5xl px-4 py-10 text-white">
         <div className="flex items-center justify-between gap-4">
           <Link

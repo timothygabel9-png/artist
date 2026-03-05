@@ -4,128 +4,140 @@ import Image from "next/image";
 import React, { useEffect, useMemo, useState } from "react";
 import SignatureDraw from "@/components/SignatureDraw";
 
-type HeroImage = {
+export type HeroSlide = {
   src: string;
-  alt: string;
+  alt?: string;
+  kicker?: string;  // small line above title
+  title?: string;   // main title (Joshua Schultz)
+  blurb?: string;   // the artistic blurb
+  signature?: boolean;
 };
 
 type Props = {
-  images: HeroImage[];
+  slides?: HeroSlide[];
   /** ms */
   intervalMs?: number;
   /** ms */
   fadeMs?: number;
-  /** Ken Burns duration ms (should be >= intervalMs for slow movement) */
-  kenBurnsMs?: number;
 };
 
 export default function HeroRotator({
-  images,
-  intervalMs = 8000,
+  slides = [],
+  intervalMs = 9000,
   fadeMs = 1600,
-  kenBurnsMs = 14000,
 }: Props) {
-  const safeImages = useMemo(() => (images || []).filter(Boolean), [images]);
+  const safeSlides = useMemo(() => {
+    const arr = Array.isArray(slides) ? slides : [];
+    return arr.filter((s): s is HeroSlide => Boolean(s && s.src));
+  }, [slides]);
+
   const [idx, setIdx] = useState(0);
 
+  // keep idx valid when slide list changes
   useEffect(() => {
-    if (safeImages.length <= 1) return;
+    if (idx >= safeSlides.length) setIdx(0);
+  }, [idx, safeSlides.length]);
+
+  // auto-rotate
+  useEffect(() => {
+    if (safeSlides.length <= 1) return;
     const id = window.setInterval(() => {
-      setIdx((n) => (n + 1) % safeImages.length);
+      setIdx((n) => (n + 1) % safeSlides.length);
     }, intervalMs);
     return () => window.clearInterval(id);
-  }, [safeImages.length, intervalMs]);
+  }, [safeSlides.length, intervalMs]);
+
+  const active = safeSlides[idx];
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-black">
-      {/* Image stack (crossfade + Ken Burns) */}
+    <section className="relative h-[100svh] w-full overflow-hidden bg-black">
+      {/* Background slideshow */}
       <div className="absolute inset-0">
-        {safeImages.map((img, i) => {
-          const active = i === idx;
-
-          // alternate drift direction per slide
-          const driftClass = i % 2 === 0 ? "kenburns-a" : "kenburns-b";
-
-          return (
+        {safeSlides.length ? (
+          safeSlides.map((s, i) => (
             <div
-              key={img.src}
-              className="absolute inset-0"
+              key={s.src}
+              className="absolute inset-0 transition-opacity"
               style={{
-                opacity: active ? 1 : 0,
-                transition: `opacity ${fadeMs}ms ease-in-out`,
+                opacity: i === idx ? 1 : 0,
+                transitionDuration: `${fadeMs}ms`,
               }}
             >
-              {/* Animated inner wrapper so the image can pan/zoom while staying covered */}
-              <div
-                className={active ? driftClass : ""}
-                style={{
-                  height: "100%",
-                  width: "100%",
-                  animationDuration: `${kenBurnsMs}ms`,
-                }}
-              >
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  priority={i === 0}
-                  className="object-cover"
-                  sizes="100vw"
-                />
-              </div>
-
-              {/* readability overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/25" />
+              <Image
+                src={s.src}
+                alt={s.alt || "Hero image"}
+                fill
+                priority={i === 0}
+                className="object-cover"
+                sizes="100vw"
+              />
             </div>
-          );
-        })}
+          ))
+        ) : (
+          <div className="absolute inset-0 bg-black" />
+        )}
+
+        {/* readability overlays */}
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/70" />
       </div>
 
-      {/* subtle “bleed” glow */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -inset-24 bg-white/10 blur-3xl opacity-25" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex h-full items-end">
-        <div className="w-full px-6 pb-10 pt-20 sm:px-10 sm:pb-12">
-          <div className="mx-auto max-w-6xl">
-            <div className="max-w-3xl">
-
-
-              <h1 className="mt-3 text-4xl sm:text-6xl font-semibold tracking-tight text-white">
-                Joshua Schultz
-              </h1>
-
-              <SignatureDraw className="mt-4 h-14 w-auto text-white/90" />
-
-              <p className="mt-4 max-w-xl text-sm sm:text-base text-white/75">
-                Murals, graphic tees, studio artwork, and creative builds — Aurora, IL and beyond.
+      {/* Content: fixed zones so nothing overlaps */}
+      <div className="relative z-10 mx-auto grid h-[100svh] max-w-5xl px-6 pt-20 pb-10 text-center">
+        {/* TOP: blurb */}
+        <div className="flex items-start justify-center">
+          <div className="w-full max-w-3xl">
+            <div className="mx-auto rounded-2xl border border-white/15 bg-black/35 px-6 py-5 backdrop-blur-md shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
+              <p className="font-display text-lg sm:text-2xl md:text-3xl leading-snug text-white/90">
+                {active?.blurb ||
+                  "Murals, graphic tees, studio artwork, and creative builds that feel personal to the space."}
               </p>
-
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a
-                  href="/portfolio"
-                  className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition"
-                >
-                  View Portfolio
-                </a>
-                <a
-                  href="/request-meeting"
-                  className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15 transition"
-                >
-                  Request a Meeting
-                </a>
-              </div>
             </div>
+          </div>
+        </div>
+
+        {/* MIDDLE: name + signature */}
+        <div className="flex flex-col items-center justify-center">
+          {active?.kicker ? (
+            <div className="mb-3 text-xs uppercase tracking-[0.35em] text-white/75">
+              {active.kicker}
+            </div>
+          ) : null}
+
+          <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight text-white">
+            {active?.title || "Joshua Schultz"}
+          </h1>
+
+          {active?.signature ? (
+            <div className="mt-4 h-14">
+              <SignatureDraw className="h-14 w-auto text-white/90" />
+            </div>
+          ) : null}
+        </div>
+
+        {/* BOTTOM: buttons */}
+        <div className="flex items-end justify-center">
+          <div className="flex flex-wrap justify-center gap-3">
+            <a
+              href="/portfolio"
+              className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition"
+            >
+              View Portfolio
+            </a>
+            <a
+              href="/request-meeting"
+              className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15 transition"
+            >
+              Request a Meeting
+            </a>
           </div>
         </div>
       </div>
 
       {/* Dots */}
-      {safeImages.length > 1 ? (
+      {safeSlides.length > 1 ? (
         <div className="absolute right-5 bottom-5 z-20 flex gap-2">
-          {safeImages.map((_, i) => (
+          {safeSlides.map((_, i) => (
             <button
               key={i}
               onClick={() => setIdx(i)}

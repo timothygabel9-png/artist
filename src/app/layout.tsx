@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cinzel_Decorative } from "next/font/google";
 import "./globals.css";
+import { Playfair_Display } from "next/font/google";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-art",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,6 +65,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      
       <body
         className={[
           geistSans.variable,

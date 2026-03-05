@@ -234,7 +234,7 @@ export default function AdminPortfolioUploadPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm mb-1">Client name</label>
-              <input className="w-full rounded p-2 bg-white/10 border border-white/10" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Culver’s, City of Aurora, etc" />
+              <input className="w-full rounded p-2 bg-white/10 border border-white/10" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="City of Aurora, etc" />
             </div>
 
             <div>
@@ -243,37 +243,45 @@ export default function AdminPortfolioUploadPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm mb-1">Type</label>
-              <select className="w-full rounded p-2 bg-white/10 border border-white/10" value={type} onChange={(e) => setType(e.target.value as ItemType)}>
-                <option value="mural">Mural</option>
-                <option value="carpentry">Carpentry</option>
-                <option value="graphic-design">Graphic Design</option>
-                <option value="signage">Signage</option>
-              </select>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div>
+    <label className="block text-sm mb-1">Type</label>
+    <select
+      className="w-full rounded p-2 border border-white/10 bg-neutral-900 text-white"
+      value={type}
+      onChange={(e) => setType(e.target.value as ItemType)}
+    >
+      <option className="bg-white text-black" value="mural">Mural</option>
+      <option className="bg-white text-black" value="carpentry">Carpentry</option>
+      <option className="bg-white text-black" value="graphic-design">Graphic Design</option>
+      <option className="bg-white text-black" value="signage">Signage</option>
+    </select>
+  </div>
 
-            <div>
-              <label className="block text-sm mb-1">Category</label>
-              <select className="w-full rounded p-2 bg-white/10 border border-white/10" value={category} onChange={(e) => setCategory(e.target.value as Category)}>
-                {type === "graphic-design" ? (
-                  <>
-                    <option value="logos">/graphic-design/logos</option>
-                    <option value="tshirts">/graphic-design/tshirts</option>
-                    <option value="album-covers">/graphic-design/album-covers</option>
-                    <option value="show-posters">/graphic-design/show-posters</option>
-                    <option value="events">/graphic-design/events</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="outdoor">Outdoor</option>
-                    <option value="indoor">Indoor</option>
-                  </>
-                )}
-              </select>
-            </div>
-          </div>
+  <div>
+    <label className="block text-sm mb-1">Category</label>
+    <select
+      className="w-full rounded p-2 border border-white/10 bg-neutral-900 text-white"
+      value={category}
+      onChange={(e) => setCategory(e.target.value as Category)}
+    >
+      {type === "graphic-design" ? (
+        <>
+          <option className="bg-white text-black" value="logos">/graphic-design/logos</option>
+          <option className="bg-white text-black" value="tshirts">/graphic-design/tshirts</option>
+          <option className="bg-white text-black" value="album-covers">/graphic-design/album-covers</option>
+          <option className="bg-white text-black" value="show-posters">/graphic-design/show-posters</option>
+          <option className="bg-white text-black" value="events">/graphic-design/events</option>
+        </>
+      ) : (
+        <>
+          <option className="bg-white text-black" value="outdoor">Outdoor</option>
+          <option className="bg-white text-black" value="indoor">Indoor</option>
+        </>
+      )}
+    </select>
+  </div>
+</div>
 
           <div>
             <label className="block text-sm mb-1">Description</label>
