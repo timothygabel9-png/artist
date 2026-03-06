@@ -33,14 +33,8 @@ const GRAPHIC_CATEGORIES: GraphicDesignCategory[] = [
 type Props = {
   title: string;
   subtitle?: string;
-
-  /** Seed filters for the page (ex: { type:"graphic-design", category:"logos", active:true }) */
   initialFilters?: PortfolioFilters;
-
-  /** If true, hide the Type dropdown and force the initialFilters.type */
   lockType?: boolean;
-
-  /** If true, hide the Category dropdown and force the initialFilters.category */
   lockCategory?: boolean;
 };
 
@@ -59,10 +53,8 @@ export default function PortfolioBrowser({
   const [cursor, setCursor] = useState<Cursor | null>(null);
   const [hasMore, setHasMore] = useState(false);
 
-  // Modal
   const [selected, setSelected] = useState<PortfolioItem | null>(null);
 
-  // Filters
   const seededActive = initialFilters?.active ?? true;
 
   const [featuredOnly, setFeaturedOnly] = useState(
@@ -82,7 +74,6 @@ export default function PortfolioBrowser({
   );
   const [tag, setTag] = useState(initialFilters?.tag ?? "");
 
-  // Dropdown values from loaded results
   const allLocations = useMemo(() => {
     const s = new Set<string>();
     for (const it of items as any[]) {
@@ -101,7 +92,6 @@ export default function PortfolioBrowser({
     return Array.from(s).sort((a, b) => a.localeCompare(b));
   }, [items]);
 
-  // Keep category valid when type changes (only when not locked)
   useEffect(() => {
     if (lockType || lockCategory) return;
 
@@ -109,11 +99,9 @@ export default function PortfolioBrowser({
     if (category !== "all" && GRAPHIC_CATEGORIES.includes(category as any)) {
       setCategory("all");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type]);
+  }, [type, category, lockType, lockCategory]);
 
   const filters = useMemo<PortfolioFilters>(() => {
-    // Always show active items unless initialFilters explicitly set active:false
     const f: PortfolioFilters = { active: seededActive };
 
     if (featuredOnly) f.featured = true;
@@ -151,7 +139,6 @@ export default function PortfolioBrowser({
     initialFilters?.category,
   ]);
 
-  // stale request guard
   const requestIdRef = useRef(0);
 
   async function loadFirstPage() {
@@ -198,7 +185,9 @@ export default function PortfolioBrowser({
       setItems((prev) => {
         const seen = new Set(prev.map((p) => p.id));
         const merged = [...prev];
-        for (const it of res.items) if (!seen.has(it.id)) merged.push(it);
+        for (const it of res.items) {
+          if (!seen.has(it.id)) merged.push(it);
+        }
         return merged;
       });
 
@@ -227,180 +216,182 @@ export default function PortfolioBrowser({
   }, [filters]);
 
   const selectClass =
-    "rounded-lg bg-slate-800/80 text-white border border-white/20 px-4 py-2 text-sm shadow-sm backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/30 transition";
+    "w-full min-h-[44px] rounded-lg border border-white/20 bg-slate-800/80 px-4 py-2 text-sm text-white shadow-sm backdrop-blur-sm transition focus:outline-none focus:ring-2 focus:ring-white/30";
   const inputClass =
-    "rounded-lg bg-slate-800/80 text-white border border-white/20 px-4 py-2 text-sm shadow-sm backdrop-blur-sm placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 transition";
+    "w-full min-h-[44px] rounded-lg border border-white/20 bg-slate-800/80 px-4 py-2 text-sm text-white shadow-sm backdrop-blur-sm placeholder:text-white/40 transition focus:outline-none focus:ring-2 focus:ring-white/30";
 
   return (
     <div>
-      <div className="flex items-end justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl font-bold">{title}</h1>
-          {subtitle ? <p className="text-white/70">{subtitle}</p> : null}
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
+          {subtitle ? (
+            <p className="mt-1 text-sm text-white/70 sm:text-base">{subtitle}</p>
+          ) : null}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 items-center">
-          <label className="flex items-center gap-2 text-sm text-white/80">
+        <div className="w-full lg:w-auto">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <label className="flex min-h-[44px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white/80">
+              <input
+                type="checkbox"
+                checked={featuredOnly}
+                onChange={(e) => setFeaturedOnly(e.target.checked)}
+              />
+              Featured
+            </label>
+
+            {!lockType && (
+              <select
+                className={selectClass}
+                value={type}
+                onChange={(e) => setType(e.target.value as any)}
+              >
+                <option className="bg-white text-black" value="all">
+                  All types
+                </option>
+                <option className="bg-white text-black" value="mural">
+                  Mural
+                </option>
+                <option className="bg-white text-black" value="carpentry">
+                  Carpentry
+                </option>
+                <option className="bg-white text-black" value="graphic-design">
+                  Graphic Design
+                </option>
+                <option className="bg-white text-black" value="signage">
+                  Signage
+                </option>
+              </select>
+            )}
+
+            {!lockCategory && (
+              <select
+                className={selectClass}
+                value={category}
+                onChange={(e) => setCategory(e.target.value as any)}
+              >
+                <option className="bg-white text-black" value="all">
+                  All categories
+                </option>
+
+                {type === "graphic-design" ? (
+                  <>
+                    <option className="bg-white text-black" value="logos">
+                      /graphic-design/logos
+                    </option>
+                    <option className="bg-white text-black" value="tshirts">
+                      /graphic-design/tshirts
+                    </option>
+                    <option className="bg-white text-black" value="album-covers">
+                      /graphic-design/album-covers
+                    </option>
+                    <option className="bg-white text-black" value="show-posters">
+                      /graphic-design/show-posters
+                    </option>
+                    <option className="bg-white text-black" value="events">
+                      /graphic-design/events
+                    </option>
+                  </>
+                ) : (
+                  <>
+                    <option className="bg-white text-black" value="indoor">
+                      Indoor
+                    </option>
+                    <option className="bg-white text-black" value="outdoor">
+                      Outdoor
+                    </option>
+                  </>
+                )}
+              </select>
+            )}
+
+            <select
+              className={selectClass}
+              value={location}
+              onChange={(e) => setLocation(e.target.value as any)}
+            >
+              <option className="bg-white text-black" value="all">
+                All locations
+              </option>
+              {allLocations.map((x) => (
+                <option className="bg-white text-black" key={x} value={x}>
+                  {x}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className={selectClass}
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value as any)}
+            >
+              <option className="bg-white text-black" value="all">
+                All clients
+              </option>
+              {allClients.map((x) => (
+                <option className="bg-white text-black" key={x} value={x}>
+                  {x}
+                </option>
+              ))}
+            </select>
+
             <input
-              type="checkbox"
-              checked={featuredOnly}
-              onChange={(e) => setFeaturedOnly(e.target.checked)}
+              className={inputClass}
+              placeholder="Tag (min 2 chars)…"
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
             />
-            Featured
-          </label>
 
-          {!lockType && (
-            <select
-              className={selectClass}
-              value={type}
-              onChange={(e) => setType(e.target.value as any)}
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="min-h-[44px] rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm shadow-sm transition hover:bg-white/20"
             >
-              <option className="text-black bg-white" value="all">
-                All types
-              </option>
-              <option className="text-black bg-white" value="mural">
-                Mural
-              </option>
-              <option className="text-black bg-white" value="carpentry">
-                Carpentry
-              </option>
-              <option className="text-black bg-white" value="graphic-design">
-                Graphic Design
-              </option>
-              <option className="text-black bg-white" value="signage">
-                Signage
-              </option>
-            </select>
-          )}
-
-          {!lockCategory && (
-            <select
-              className={selectClass}
-              value={category}
-              onChange={(e) => setCategory(e.target.value as any)}
-            >
-              <option className="text-black bg-white" value="all">
-                All categories
-              </option>
-
-              {type === "graphic-design" ? (
-                <>
-                  <option className="text-black bg-white" value="logos">
-                    /graphic-design/logos
-                  </option>
-                  <option className="text-black bg-white" value="tshirts">
-                    /graphic-design/tshirts
-                  </option>
-                  <option className="text-black bg-white" value="album-covers">
-                    /graphic-design/album-covers
-                  </option>
-                  <option className="text-black bg-white" value="show-posters">
-                    /graphic-design/show-posters
-                  </option>
-                  <option className="text-black bg-white" value="events">
-                    /graphic-design/events
-                  </option>
-                </>
-              ) : (
-                <>
-                  <option className="text-black bg-white" value="indoor">
-                    Indoor
-                  </option>
-                  <option className="text-black bg-white" value="outdoor">
-                    Outdoor
-                  </option>
-                </>
-              )}
-            </select>
-          )}
-
-          <select
-            className={selectClass}
-            value={location}
-            onChange={(e) => setLocation(e.target.value as any)}
-          >
-            <option className="text-black bg-white" value="all">
-              All locations
-            </option>
-            {allLocations.map((x) => (
-              <option className="text-black bg-white" key={x} value={x}>
-                {x}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className={selectClass}
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value as any)}
-          >
-            <option className="text-black bg-white" value="all">
-              All clients
-            </option>
-            {allClients.map((x) => (
-              <option className="text-black bg-white" key={x} value={x}>
-                {x}
-              </option>
-            ))}
-          </select>
-
-          <input
-            className={inputClass}
-            placeholder="Tag (min 2 chars)…"
-            value={tag}
-            onChange={(e) => setTag(e.target.value)}
-          />
-
-          <button
-            type="button"
-            onClick={clearFilters}
-            className="rounded-lg bg-white/10 border border-white/20 px-4 py-2 text-sm hover:bg-white/20 transition shadow-sm"
-          >
-            Clear
-          </button>
+              Clear
+            </button>
+          </div>
         </div>
       </div>
 
       {err && (
-        <div className="mt-6 rounded-lg bg-red-500/15 border border-red-400/30 p-4">
+        <div className="mt-6 rounded-lg border border-red-400/30 bg-red-500/15 p-4">
           <div className="font-semibold">Error</div>
-          <div className="text-white/80 text-sm">{err}</div>
+          <div className="text-sm text-white/80">{err}</div>
         </div>
       )}
 
       {loading ? (
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
           {Array.from({ length: 9 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl bg-white/10 border border-white/10 p-4 animate-pulse"
+              className="rounded-2xl border border-white/10 bg-white/10 p-4 animate-pulse"
             >
-              <div className="h-44 rounded-xl bg-white/10" />
+              <div className="h-40 rounded-xl bg-white/10 sm:h-44" />
               <div className="mt-4 h-4 w-2/3 rounded bg-white/10" />
               <div className="mt-2 h-3 w-1/2 rounded bg-white/10" />
             </div>
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="mt-10 rounded-2xl bg-white/5 border border-white/10 p-8 text-center">
-          <div className="text-xl font-semibold">No results</div>
-          <div className="text-white/70 mt-2">
+        <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6 text-center sm:p-8">
+          <div className="text-lg font-semibold sm:text-xl">No results</div>
+          <div className="mt-2 text-white/70">
             Try clearing filters or using a different tag.
           </div>
         </div>
       ) : (
         <>
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
             {items.map((it: any) => (
               <button
                 key={it.id}
                 onClick={() => setSelected(it)}
-                className="text-left rounded-2xl bg-white/5 border border-white/10 overflow-hidden hover:bg-white/10 transition"
+                className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left transition hover:bg-white/10"
               >
                 <article>
-                  {/* Image area links to project page; does NOT open modal */}
-                  <div className="relative h-52 w-full bg-white/5">
+                  <div className="relative h-44 w-full bg-white/5 sm:h-52">
                     <Link
                       href={`/portfolio/item/${it.id}`}
                       onClick={(e) => e.stopPropagation()}
@@ -414,10 +405,10 @@ export default function PortfolioBrowser({
                           alt={it.title || "Portfolio item"}
                           fill
                           className="object-cover"
-                          sizes="(max-width: 1024px) 100vw, 33vw"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-white/40 text-sm">
+                        <div className="absolute inset-0 flex items-center justify-center text-sm text-white/40">
                           No image
                         </div>
                       )}
@@ -425,25 +416,25 @@ export default function PortfolioBrowser({
                   </div>
 
                   <div className="p-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <h2 className="font-semibold text-lg truncate">
+                    <div className="flex items-start justify-between gap-2">
+                      <h2 className="truncate text-base font-semibold sm:text-lg">
                         {it.title || "Untitled"}
                       </h2>
                       {it.featured ? (
-                        <span className="text-xs px-2 py-1 rounded bg-white/10 border border-white/10">
+                        <span className="shrink-0 rounded bg-white/10 px-2 py-1 text-xs border border-white/10">
                           Featured
                         </span>
                       ) : null}
                     </div>
 
-                    <div className="text-sm text-white/70 mt-1">
+                    <div className="mt-1 text-sm text-white/70">
                       {[it.type, it.category, it.clientName, it.location]
                         .filter(Boolean)
                         .join(" • ")}
                     </div>
 
                     {it.description ? (
-                      <p className="text-sm text-white/75 mt-3 line-clamp-3">
+                      <p className="mt-3 line-clamp-3 text-sm text-white/75">
                         {it.description}
                       </p>
                     ) : null}
@@ -453,7 +444,7 @@ export default function PortfolioBrowser({
                         {it.tags.slice(0, 4).map((t: string) => (
                           <span
                             key={t}
-                            className="text-xs px-2 py-1 rounded bg-white/10 border border-white/10 text-white/80"
+                            className="rounded border border-white/10 bg-white/10 px-2 py-1 text-xs text-white/80"
                           >
                             {t}
                           </span>
@@ -471,12 +462,12 @@ export default function PortfolioBrowser({
               <button
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="rounded-xl bg-white/10 border border-white/15 px-5 py-3 hover:bg-white/15 disabled:opacity-60"
+                className="min-h-[44px] rounded-xl border border-white/15 bg-white/10 px-5 py-3 transition hover:bg-white/15 disabled:opacity-60"
               >
                 {loadingMore ? "Loading…" : "Load more"}
               </button>
             ) : (
-              <div className="text-white/60 text-sm">End of results</div>
+              <div className="text-sm text-white/60">End of results</div>
             )}
           </div>
         </>
@@ -485,7 +476,7 @@ export default function PortfolioBrowser({
       <PortfolioGalleryModal
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
-        id={selected?.id} // ✅ NEW: enables "View Project →" inside the modal
+        id={selected?.id}
         title={selected?.title}
         description={selected?.description}
         coverImageUrl={selected?.coverImageUrl}

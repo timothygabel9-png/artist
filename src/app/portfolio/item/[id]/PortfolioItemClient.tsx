@@ -23,7 +23,6 @@ export default function PortfolioItemClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // modal state
   const [open, setOpen] = useState(false);
   const [startIdx, setStartIdx] = useState(0);
 
@@ -56,28 +55,33 @@ export default function PortfolioItemClient({ id }: { id: string }) {
 
   const cover = images[0];
 
-  if (loading) return <div className="mt-10 text-white/70">Loading…</div>;
+  if (loading) {
+    return <div className="mt-8 text-sm text-white/70 sm:mt-10">Loading…</div>;
+  }
 
-  if (err)
+  if (err) {
     return (
-      <div className="mt-10 rounded-xl border border-red-400/30 bg-red-500/10 p-4">
+      <div className="mt-8 rounded-xl border border-red-400/30 bg-red-500/10 p-4 sm:mt-10">
         <div className="font-semibold">Error</div>
         <div className="text-sm text-white/80">{err}</div>
       </div>
     );
+  }
 
   if (!item) return null;
 
-  const meta = [item.type, item.category, item.clientName, item.location].filter(Boolean).join(" • ");
+  const meta = [item.type, item.category, item.clientName, item.location]
+    .filter(Boolean)
+    .join(" • ");
 
   return (
     <>
       {/* HERO */}
-      <section className="mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <section className="mt-6 sm:mt-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 items-start">
           <div className="lg:col-span-7">
             <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-              <div className="relative aspect-[16/10] w-full">
+              <div className="relative aspect-[4/3] w-full sm:aspect-[16/10]">
                 {cover ? (
                   <Image
                     src={cover}
@@ -101,37 +105,39 @@ export default function PortfolioItemClient({ id }: { id: string }) {
                     setStartIdx(0);
                     setOpen(true);
                   }}
-                  className="absolute bottom-3 right-3 rounded-lg border border-white/15 bg-black/50 px-3 py-2 text-xs text-white/90 hover:bg-black/70"
+                  className="absolute bottom-3 right-3 min-h-[40px] rounded-lg border border-white/15 bg-black/60 px-3 py-2 text-xs text-white/90 transition hover:bg-black/75 sm:text-sm"
                 >
-                  View slideshow
+                  View Slideshow
                 </button>
               ) : null}
             </div>
           </div>
 
           <div className="lg:col-span-5">
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
               {item.title || "Untitled"}
             </h1>
 
-            {meta ? <div className="mt-3 text-white/70">{meta}</div> : null}
+            {meta ? (
+              <div className="mt-3 text-sm text-white/70 sm:text-base">{meta}</div>
+            ) : null}
 
             {item.description ? (
-              <p className="mt-6 text-white/80 leading-relaxed whitespace-pre-line">
+              <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-white/80 sm:mt-6 sm:text-base">
                 {item.description}
               </p>
             ) : (
-              <p className="mt-6 text-white/60">
+              <p className="mt-5 text-sm text-white/60 sm:mt-6 sm:text-base">
                 No description yet.
               </p>
             )}
 
             {Array.isArray(item.tags) && item.tags.length ? (
-              <div className="mt-6 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-wrap gap-2 sm:mt-6">
                 {item.tags.map((t) => (
                   <span
                     key={t}
-                    className="text-xs px-2 py-1 rounded bg-white/10 border border-white/10 text-white/80"
+                    className="rounded border border-white/10 bg-white/10 px-2 py-1 text-xs text-white/80"
                   >
                     {t}
                   </span>
@@ -144,9 +150,10 @@ export default function PortfolioItemClient({ id }: { id: string }) {
 
       {/* GALLERY GRID */}
       {images.length > 1 ? (
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold">Gallery</h2>
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <section className="mt-10 sm:mt-12">
+          <h2 className="text-lg font-semibold sm:text-xl">Gallery</h2>
+
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {images.map((url, i) => (
               <button
                 key={url + i}
@@ -155,7 +162,7 @@ export default function PortfolioItemClient({ id }: { id: string }) {
                   setStartIdx(i);
                   setOpen(true);
                 }}
-                className="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition"
+                className="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 transition hover:bg-white/10"
                 title="Open"
               >
                 <div className="relative aspect-square">
@@ -164,7 +171,7 @@ export default function PortfolioItemClient({ id }: { id: string }) {
                     alt={`Image ${i + 1}`}
                     fill
                     className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
-                    sizes="(max-width: 1024px) 50vw, 25vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   />
                 </div>
               </button>
@@ -173,16 +180,16 @@ export default function PortfolioItemClient({ id }: { id: string }) {
         </section>
       ) : null}
 
-      {/* MODAL VIEWER (only opens when clicking) */}
-      <PortfolioGalleryModal
-        open={open}
-        onClose={() => setOpen(false)}
-        id={item.id}
-        title={item.title}
-        description={item.description}
-        coverImageUrl={item.coverImageUrl}
-        imageUrls={item.imageUrls}
-      />
+<PortfolioGalleryModal
+  open={open}
+  onClose={() => setOpen(false)}
+  id={item.id}
+  title={item.title}
+  description={item.description}
+  coverImageUrl={item.coverImageUrl}
+  imageUrls={item.imageUrls}
+  initialIndex={startIdx}
+/>
     </>
   );
 }

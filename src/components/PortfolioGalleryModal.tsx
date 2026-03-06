@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -13,6 +11,7 @@ type Props = {
   description?: string;
   coverImageUrl?: string;
   imageUrls?: string[];
+  initialIndex?: number;
 };
 
 function uniq(arr: string[]) {
@@ -82,6 +81,7 @@ export default function PortfolioGalleryModal({
   description,
   coverImageUrl,
   imageUrls,
+  initialIndex = 0,
 }: Props) {
   const router = useRouter();
 
@@ -96,6 +96,8 @@ export default function PortfolioGalleryModal({
   const [isLg, setIsLg] = useState(false);
 
   const fullscreenRef = useRef<HTMLDivElement | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const toggleFullscreen = async () => {
     const el = fullscreenRef.current;
@@ -115,14 +117,49 @@ export default function PortfolioGalleryModal({
     onClose();
   };
 
-  const prev = () => setIdx((n) => Math.max(n - 1, 0));
-  const next = () => setIdx((n) => Math.min(n + 1, images.length - 1));
+  const prev = () => {
+    setIsPlaying(false);
+    setIdx((n) => (n === 0 ? images.length - 1 : n - 1));
+  };
+
+  const next = () => {
+    setIsPlaying(false);
+    setIdx((n) => (n >= images.length - 1 ? 0 : n + 1));
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+
+    const distance = touchStartX.current - touchEndX.current;
+    const SWIPE_THRESHOLD = 50;
+
+    if (distance > SWIPE_THRESHOLD) {
+      next();
+    }
+
+    if (distance < -SWIPE_THRESHOLD) {
+      prev();
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
 
   useEffect(() => {
     if (!open) return;
-    setIdx(0);
+    const safeIndex =
+      initialIndex >= 0 && initialIndex < images.length ? initialIndex : 0;
+    setIdx(safeIndex);
     setIsPlaying(false);
-  }, [open]);
+  }, [open, initialIndex, images.length]);
 
   useEffect(() => {
     if (!open) return;
@@ -148,11 +185,11 @@ export default function PortfolioGalleryModal({
   useEffect(() => {
     if (!open || !isPlaying || images.length <= 1) return;
 
-    const id = setInterval(() => {
+    const timerId = setInterval(() => {
       setIdx((n) => (n >= images.length - 1 ? 0 : n + 1));
     }, intervalMs);
 
-    return () => clearInterval(id);
+    return () => clearInterval(timerId);
   }, [open, isPlaying, images.length, intervalMs]);
 
   useEffect(() => {
@@ -179,31 +216,31 @@ export default function PortfolioGalleryModal({
         if (e.target === e.currentTarget) closeAndStop();
       }}
     >
-      <div className="h-full w-full p-3 sm:p-6">
+      <div className="h-full w-full p-2 sm:p-4 lg:p-6">
         <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl">
-
           {/* HEADER */}
-          <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3">
-
+          <div className="flex flex-col gap-3 border-b border-white/10 px-3 py-3 sm:px-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
-              <div className="truncate text-lg font-semibold text-white">
+              <div className="truncate text-base font-semibold text-white sm:text-lg">
                 {title || "Portfolio item"}
               </div>
 
               {description && (
-                <div className="mt-1 line-clamp-2 text-sm text-white/70">
+                <div className="mt-1 line-clamp-2 text-xs text-white/70 sm:text-sm">
                   {description}
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-
+            <div
+              className="flex flex-wrap items-center gap-2"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
               {/* Slideshow */}
               <button
                 onClick={() => setIsPlaying((p) => !p)}
                 disabled={images.length <= 1}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10"
+                className="inline-flex min-h-[40px] items-center rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 disabled:opacity-50"
               >
                 <span className="flex items-center gap-2">
                   {isPlaying ? (
@@ -220,83 +257,121 @@ export default function PortfolioGalleryModal({
                 </span>
               </button>
 
-{/* View Project */}
-{id && (
-  <button
-    type="button"
-    onMouseDown={(e) => e.stopPropagation()}
-    onClick={(e) => {
-      e.stopPropagation();
-      setIsPlaying(false);
-      onClose(); // close the modal so it doesn't look like nothing happened
-      router.push(`/portfolio/item/${id}`);
-    }}
-    className="relative z-50 hidden sm:inline-flex rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10"
-  >
-    View Project →
-  </button>
-)}
+              {/* View Project */}
+              {id && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsPlaying(false);
+                    onClose();
+                    router.push(`/portfolio/item/${id}`);
+                  }}
+                  className="hidden min-h-[40px] rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 sm:inline-flex"
+                >
+                  View Project →
+                </button>
+              )}
 
               {/* Speed */}
               <select
                 value={intervalMs}
                 onChange={(e) => setIntervalMs(Number(e.target.value))}
-                 className="hidden sm:block rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-white"
->
-  <option className="bg-white text-black" value={1500}>Very Fast</option>
-  <option className="bg-white text-black" value={2500}>Fast</option>
-  <option className="bg-white text-black" value={3500}>Normal</option>
-  <option className="bg-white text-black" value={5000}>Slow</option>
-  <option className="bg-white text-black" value={7000}>Very Slow</option>
-</select>
+                className="hidden min-h-[40px] rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-white sm:block"
+              >
+                <option className="bg-white text-black" value={1500}>
+                  Very Fast
+                </option>
+                <option className="bg-white text-black" value={2500}>
+                  Fast
+                </option>
+                <option className="bg-white text-black" value={5000}>
+                  Normal
+                </option>
+                <option className="bg-white text-black" value={7000}>
+                  Slow
+                </option>
+                <option className="bg-white text-black" value={9000}>
+                  Very Slow
+                </option>
+              </select>
 
               {/* Close */}
               <button
                 onClick={closeAndStop}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10"
+                className="inline-flex min-h-[40px] items-center rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10"
               >
                 Close
               </button>
-
             </div>
           </div>
 
-          {/* IMAGE AREA */}
-          <div
-            ref={fullscreenRef}
-            className="relative h-[calc(100%-56px)] flex items-center justify-center bg-black cursor-zoom-in"
-            onDoubleClick={toggleFullscreen}
-            style={{ paddingRight: isLg ? `${THUMBS_W}px` : undefined }}
-          >
-            {current ? (
-              <img
-                src={current}
-                alt={title || "Image"}
-                className="max-h-full max-w-full object-contain"
-              />
-            ) : (
-              <div className="text-white/40">No images</div>
-            )}
+       {/* IMAGE AREA */}
+<div
+  ref={fullscreenRef}
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+  className="relative flex h-[calc(100%-74px)] items-center justify-center overflow-hidden bg-black sm:h-[calc(100%-76px)] lg:h-[calc(100%-56px)]"
+  onDoubleClick={toggleFullscreen}
+>
+  {current ? (
+    <>
+{/* blurred background */}
+<div
+  className="absolute inset-0 animate-[slowZoom_18s_linear_infinite]"
+  style={{
+    backgroundImage: `url("${current}")`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    filter: "blur(55px) brightness(0.55)",
+  }}
+/>
 
-            {images.length > 1 && (
-              <>
-                <button
-                  onClick={prev}
-                  className="absolute left-6 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10"
-                >
-                  <ChevronLeftIcon className="h-6 w-6 mx-auto text-white" />
-                </button>
+{/* dark overlay so blur stays subtle */}
+<div className="absolute inset-0 z-0 bg-black/30" />
 
-                <button
-                  onClick={next}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/10"
-                >
-                  <ChevronRightIcon className="h-6 w-6 mx-auto text-white" />
-                </button>
-              </>
-            )}
-          </div>
+{/* main image */}
+<div className="relative z-10 flex h-full w-full items-center justify-center px-16 sm:px-20 lg:px-24">
+  <img
+    src={current}
+    alt={title || "Image"}
+   className="block max-h-[96%] max-w-[96%] object-contain"
+  />
+</div>
+    </>
+  ) : (
+    <div className="text-white/40">No images</div>
+  )}
 
+  {images.length > 1 && (
+    <>
+      <button
+        onClick={prev}
+        className="absolute left-3 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 sm:left-4 sm:h-12 sm:w-12 lg:left-6"
+        aria-label="Previous image"
+      >
+        <ChevronLeftIcon className="mx-auto h-5 w-5 text-white sm:h-6 sm:w-6" />
+      </button>
+
+      <button
+        onClick={next}
+        className="absolute right-3 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 sm:right-4 sm:h-12 sm:w-12 lg:right-6"
+        aria-label="Next image"
+      >
+        <ChevronRightIcon className="mx-auto h-5 w-5 text-white sm:h-6 sm:w-6" />
+      </button>
+    </>
+  )}
+
+  {/* Mobile image counter */}
+  {images.length > 1 && (
+    <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full border border-white/10 bg-black/50 px-3 py-1 text-xs text-white/80 sm:hidden">
+      {idx + 1} / {images.length}
+    </div>
+  )}
+</div>
         </div>
       </div>
     </div>

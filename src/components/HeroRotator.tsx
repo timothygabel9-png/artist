@@ -1,15 +1,16 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import SignatureDraw from "@/components/SignatureDraw";
 
 export type HeroSlide = {
   src: string;
   alt?: string;
-  kicker?: string;  // small line above title
-  title?: string;   // main title (Joshua Schultz)
-  blurb?: string;   // the artistic blurb
+  kicker?: string;
+  title?: string;
+  blurb?: string;
   signature?: boolean;
 };
 
@@ -19,12 +20,14 @@ type Props = {
   intervalMs?: number;
   /** ms */
   fadeMs?: number;
+  className?: string;
 };
 
 export default function HeroRotator({
   slides = [],
   intervalMs = 9000,
   fadeMs = 1600,
+  className = "",
 }: Props) {
   const safeSlides = useMemo(() => {
     const arr = Array.isArray(slides) ? slides : [];
@@ -33,12 +36,10 @@ export default function HeroRotator({
 
   const [idx, setIdx] = useState(0);
 
-  // keep idx valid when slide list changes
   useEffect(() => {
     if (idx >= safeSlides.length) setIdx(0);
   }, [idx, safeSlides.length]);
 
-  // auto-rotate
   useEffect(() => {
     if (safeSlides.length <= 1) return;
     const id = window.setInterval(() => {
@@ -50,7 +51,13 @@ export default function HeroRotator({
   const active = safeSlides[idx];
 
   return (
-    <section className="relative h-[100svh] w-full overflow-hidden bg-black">
+    <section
+      className={[
+        "relative w-full overflow-hidden bg-black",
+        "min-h-[calc(100svh-4rem)]",
+        className,
+      ].join(" ")}
+    >
       {/* Background slideshow */}
       <div className="absolute inset-0">
         {safeSlides.length ? (
@@ -79,16 +86,23 @@ export default function HeroRotator({
 
         {/* readability overlays */}
         <div className="absolute inset-0 bg-black/45" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/75" />
       </div>
 
-      {/* Content: fixed zones so nothing overlaps */}
-      <div className="relative z-10 mx-auto grid h-[100svh] max-w-5xl px-6 pt-20 pb-10 text-center">
+      {/* Content */}
+      <div
+        className="
+          relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-5xl
+          flex-col justify-between px-4 pb-8 pt-8 text-center
+          sm:px-6 sm:pb-10 sm:pt-10
+          md:pt-12
+        "
+      >
         {/* TOP: blurb */}
-        <div className="flex items-start justify-center">
+        <div className="flex justify-center">
           <div className="w-full max-w-3xl">
-            <div className="mx-auto rounded-2xl border border-white/15 bg-black/35 px-6 py-5 backdrop-blur-md shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
-              <p className="font-display text-lg sm:text-2xl md:text-3xl leading-snug text-white/90">
+            <div className="mx-auto rounded-2xl border border-white/15 bg-black/35 px-4 py-4 backdrop-blur-md shadow-[0_20px_60px_rgba(0,0,0,0.55)] sm:px-6 sm:py-5">
+              <p className="font-display text-base leading-snug text-white/90 sm:text-xl md:text-3xl">
                 {active?.blurb ||
                   "Murals, graphic tees, studio artwork, and creative builds that feel personal to the space."}
               </p>
@@ -97,46 +111,47 @@ export default function HeroRotator({
         </div>
 
         {/* MIDDLE: name + signature */}
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-1 flex-col items-center justify-center px-2 py-6 sm:py-8">
           {active?.kicker ? (
-            <div className="mb-3 text-xs uppercase tracking-[0.35em] text-white/75">
+            <div className="mb-3 text-[10px] uppercase tracking-[0.28em] text-white/75 sm:text-xs sm:tracking-[0.35em]">
               {active.kicker}
             </div>
           ) : null}
 
-          <h1 className="text-4xl sm:text-6xl font-semibold tracking-tight text-white">
+          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
             {active?.title || "Joshua Schultz"}
           </h1>
 
           {active?.signature ? (
-            <div className="mt-4 h-14">
-              <SignatureDraw className="h-14 w-auto text-white/90" />
+            <div className="mt-3 h-12 sm:mt-4 sm:h-14">
+              <SignatureDraw className="h-12 w-auto text-white/90 sm:h-14" />
             </div>
           ) : null}
         </div>
 
         {/* BOTTOM: buttons */}
-        <div className="flex items-end justify-center">
-          <div className="flex flex-wrap justify-center gap-3">
-            <a
+        <div className="flex justify-center">
+          <div className="flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center">
+            <Link
               href="/portfolio"
-              className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-black transition hover:opacity-90"
             >
               View Portfolio
-            </a>
-            <a
+            </Link>
+
+            <Link
               href="/request-meeting"
-              className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15 transition"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
             >
               Request a Meeting
-            </a>
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Dots */}
       {safeSlides.length > 1 ? (
-        <div className="absolute right-5 bottom-5 z-20 flex gap-2">
+        <div className="absolute inset-x-0 bottom-4 z-20 flex justify-center gap-2 sm:bottom-5 sm:right-5 sm:left-auto">
           {safeSlides.map((_, i) => (
             <button
               key={i}

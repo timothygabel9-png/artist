@@ -20,6 +20,10 @@
   font-style: italic;
   letter-spacing: 0.02em;
 }
+@keyframes slowZoom {
+  0% { transform: scale(1.1); }
+  100% { transform: scale(1.25); }
+}
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -63,6 +67,55 @@ body {
   -webkit-text-fill-color: transparent;
 
   animation: titleShimmer 6s linear infinite;
+}
+@keyframes floatSlow {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-8px) scale(1.01); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+@keyframes floatSlow2 {
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(7px) translateX(-4px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
+
+@keyframes floatSlow3 {
+  0% { transform: translateY(0px) translateX(0px) scale(1); }
+  50% { transform: translateY(-6px) translateX(5px) scale(1.015); }
+  100% { transform: translateY(0px) translateX(0px) scale(1); }
+}
+
+@keyframes cardDriftA {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes cardDriftB {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(6px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-floatSlow {
+  animation: floatSlow 14s ease-in-out infinite;
+}
+
+.animate-floatSlow2 {
+  animation: floatSlow2 16s ease-in-out infinite;
+}
+
+.animate-floatSlow3 {
+  animation: floatSlow3 18s ease-in-out infinite;
+}
+
+.animate-cardDriftA {
+  animation: cardDriftA 12s ease-in-out infinite;
+}
+
+.animate-cardDriftB {
+  animation: cardDriftB 14s ease-in-out infinite;
 }
 
 /* ✅ accessibility: reduce motion */

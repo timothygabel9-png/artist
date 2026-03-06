@@ -10,7 +10,7 @@ export default function LogosPage() {
   subtitle="Graphic design • Logos"
   variant="oceanNoir"
 >
-  <main className="mx-auto w-full max-w-6xl px-4 py-10 text-white">
+  <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-10 text-white">
     <PortfolioBrowser
       title="logos"
       subtitle="Graphic design • Logos"

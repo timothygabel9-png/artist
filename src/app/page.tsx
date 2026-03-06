@@ -1,5 +1,4 @@
 import HeroRotator, { HeroSlide } from "@/components/HeroRotator";
-import { getAboutPublished } from "@/lib/content/about";
 
 const heroSlides: HeroSlide[] = [
   {
@@ -60,22 +59,17 @@ const heroSlides: HeroSlide[] = [
   },
 ];
 
-export default async function HomePage() {
-  const about = (await getAboutPublished()) ?? null;
-
+export default function HomePage() {
   return (
-    <main className="relative">
-      {/* HERO */}
-      <div className="min-h-[calc(100svh-4rem)]">
-        <HeroRotator slides={heroSlides} intervalMs={11000} fadeMs={2600} />
-      </div>
-
-      {/* ABOUT (keep/restore your About section below as needed) */}
-      {/* Example:
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        ...
+    <main className="relative overflow-x-hidden">
+      <section className="min-h-[calc(100svh-4rem)]">
+        <HeroRotator
+          slides={heroSlides}
+          intervalMs={11000}
+          fadeMs={2600}
+          className="min-h-[calc(100svh-4rem)]"
+        />
       </section>
-      */}
     </main>
   );
 }
