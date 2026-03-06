@@ -71,8 +71,6 @@ function PauseIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-const THUMBS_W = 320;
-
 export default function PortfolioGalleryModal({
   open,
   onClose,
@@ -93,27 +91,29 @@ export default function PortfolioGalleryModal({
   const [idx, setIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [intervalMs, setIntervalMs] = useState(3500);
-  const [isLg, setIsLg] = useState(false);
 
   const fullscreenRef = useRef<HTMLDivElement | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  const toggleFullscreen = async () => {
-    const el = fullscreenRef.current;
-    if (!el) return;
+const toggleFullscreen = async () => {
+  const el = fullscreenRef.current;
+  if (!el) return;
 
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      } else {
-        await el.requestFullscreen();
-      }
-    } catch {}
-  };
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      closeAndStop(); // return to thumbnails after exiting fullscreen
+    } else {
+      await el.requestFullscreen();
+    }
+  } catch {}
+};
 
   const closeAndStop = () => {
     setIsPlaying(false);
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
     onClose();
   };
 
@@ -141,13 +141,8 @@ export default function PortfolioGalleryModal({
     const distance = touchStartX.current - touchEndX.current;
     const SWIPE_THRESHOLD = 50;
 
-    if (distance > SWIPE_THRESHOLD) {
-      next();
-    }
-
-    if (distance < -SWIPE_THRESHOLD) {
-      prev();
-    }
+    if (distance > SWIPE_THRESHOLD) next();
+    if (distance < -SWIPE_THRESHOLD) prev();
 
     touchStartX.current = null;
     touchEndX.current = null;
@@ -164,23 +159,17 @@ export default function PortfolioGalleryModal({
   useEffect(() => {
     if (!open) return;
 
-    const prevOverflow = document.body.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
     };
   }, [open]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const onChange = () => setIsLg(mq.matches);
-
-    onChange();
-    mq.addEventListener?.("change", onChange);
-
-    return () => mq.removeEventListener?.("change", onChange);
-  }, []);
 
   useEffect(() => {
     if (!open || !isPlaying || images.length <= 1) return;
@@ -209,171 +198,154 @@ export default function PortfolioGalleryModal({
 
   const current = images[idx];
 
-  return (
+return (
+  <div
+    className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm"
+    onMouseDown={(e) => {
+      if (e.target === e.currentTarget) closeAndStop();
+    }}
+  >
+    {/* Full-frame viewer */}
     <div
-      className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) closeAndStop();
-      }}
+      ref={fullscreenRef}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onDoubleClick={toggleFullscreen}
+      className="absolute inset-0 overflow-hidden"
     >
-      <div className="h-full w-full p-2 sm:p-4 lg:p-6">
-        <div className="relative h-full w-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl">
-          {/* HEADER */}
-          <div className="flex flex-col gap-3 border-b border-white/10 px-3 py-3 sm:px-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0">
-              <div className="truncate text-base font-semibold text-white sm:text-lg">
-                {title || "Portfolio item"}
-              </div>
+      {current ? (
+        <>
+          {/* blurred background */}
+          <div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: `url("${current}")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              filter: "blur(55px) brightness(0.45)",
+              transform: "scale(1.15)",
+            }}
+          />
+          <div className="absolute inset-0 z-0 bg-black/35" />
 
-              {description && (
-                <div className="mt-1 line-clamp-2 text-xs text-white/70 sm:text-sm">
-                  {description}
-                </div>
-              )}
-            </div>
-
-            <div
-              className="flex flex-wrap items-center gap-2"
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              {/* Slideshow */}
-              <button
-                onClick={() => setIsPlaying((p) => !p)}
-                disabled={images.length <= 1}
-                className="inline-flex min-h-[40px] items-center rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 disabled:opacity-50"
-              >
-                <span className="flex items-center gap-2">
-                  {isPlaying ? (
-                    <>
-                      <PauseIcon className="h-4 w-4" />
-                      Pause
-                    </>
-                  ) : (
-                    <>
-                      <PlayIcon className="h-4 w-4" />
-                      Auto Preview
-                    </>
-                  )}
-                </span>
-              </button>
-
-              {/* View Project */}
-              {id && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsPlaying(false);
-                    onClose();
-                    router.push(`/portfolio/item/${id}`);
-                  }}
-                  className="hidden min-h-[40px] rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 sm:inline-flex"
-                >
-                  View Project →
-                </button>
-              )}
-
-              {/* Speed */}
-              <select
-                value={intervalMs}
-                onChange={(e) => setIntervalMs(Number(e.target.value))}
-                className="hidden min-h-[40px] rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-white sm:block"
-              >
-                <option className="bg-white text-black" value={1500}>
-                  Very Fast
-                </option>
-                <option className="bg-white text-black" value={2500}>
-                  Fast
-                </option>
-                <option className="bg-white text-black" value={5000}>
-                  Normal
-                </option>
-                <option className="bg-white text-black" value={7000}>
-                  Slow
-                </option>
-                <option className="bg-white text-black" value={9000}>
-                  Very Slow
-                </option>
-              </select>
-
-              {/* Close */}
-              <button
-                onClick={closeAndStop}
-                className="inline-flex min-h-[40px] items-center rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10"
-              >
-                Close
-              </button>
-            </div>
+          {/* main image */}
+          <div className="relative z-10 flex h-full w-full items-center justify-center p-3 sm:p-6">
+            <img
+              src={current}
+              alt={title || "Image"}
+              className="block max-h-[92dvh] max-w-[96vw] object-contain"
+            />
           </div>
+        </>
+      ) : (
+        <div className="flex h-full items-center justify-center text-white/40">
+          No images
+        </div>
+      )}
 
-       {/* IMAGE AREA */}
-<div
-  ref={fullscreenRef}
-  onTouchStart={handleTouchStart}
-  onTouchMove={handleTouchMove}
-  onTouchEnd={handleTouchEnd}
-  className="relative flex h-[calc(100%-74px)] items-center justify-center overflow-hidden bg-black sm:h-[calc(100%-76px)] lg:h-[calc(100%-56px)]"
-  onDoubleClick={toggleFullscreen}
->
-  {current ? (
-    <>
-{/* blurred background */}
-<div
-  className="absolute inset-0 animate-[slowZoom_18s_linear_infinite]"
-  style={{
-    backgroundImage: `url("${current}")`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    filter: "blur(55px) brightness(0.55)",
-  }}
-/>
-
-{/* dark overlay so blur stays subtle */}
-<div className="absolute inset-0 z-0 bg-black/30" />
-
-{/* main image */}
-<div className="relative z-10 flex h-full w-full items-center justify-center px-16 sm:px-20 lg:px-24">
-  <img
-    src={current}
-    alt={title || "Image"}
-   className="block max-h-[96%] max-w-[96%] object-contain"
-  />
-</div>
-    </>
-  ) : (
-    <div className="text-white/40">No images</div>
-  )}
-
-  {images.length > 1 && (
-    <>
-      <button
-        onClick={prev}
-        className="absolute left-3 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 sm:left-4 sm:h-12 sm:w-12 lg:left-6"
-        aria-label="Previous image"
-      >
-        <ChevronLeftIcon className="mx-auto h-5 w-5 text-white sm:h-6 sm:w-6" />
-      </button>
-
-      <button
-        onClick={next}
-        className="absolute right-3 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-white/10 backdrop-blur hover:bg-white/20 sm:right-4 sm:h-12 sm:w-12 lg:right-6"
-        aria-label="Next image"
-      >
-        <ChevronRightIcon className="mx-auto h-5 w-5 text-white sm:h-6 sm:w-6" />
-      </button>
-    </>
-  )}
-
-  {/* Mobile image counter */}
-  {images.length > 1 && (
-    <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 rounded-full border border-white/10 bg-black/50 px-3 py-1 text-xs text-white/80 sm:hidden">
-      {idx + 1} / {images.length}
-    </div>
-  )}
-</div>
+      {/* top overlay */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/70 via-black/35 to-transparent px-4 py-4 sm:px-6">
+        <div className="pr-24 sm:pr-40">
+          <div className="truncate text-base font-semibold text-white sm:text-lg">
+            {title || "Portfolio item"}
+          </div>
+          {description ? (
+            <div className="mt-1 line-clamp-2 text-xs text-white/75 sm:text-sm">
+              {description}
+            </div>
+          ) : null}
         </div>
       </div>
+
+      {/* floating controls */}
+      <div className="absolute right-3 top-3 z-30 flex items-center gap-2 sm:right-4 sm:top-4">
+        <button
+          onClick={() => setIsPlaying((p) => !p)}
+          disabled={images.length <= 1}
+          className="hidden min-h-[40px] rounded-lg border border-white/10 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur hover:bg-black/60 disabled:opacity-50 sm:inline-flex sm:items-center"
+        >
+          <span className="flex items-center gap-2">
+            {isPlaying ? (
+              <>
+                <PauseIcon className="h-4 w-4" />
+                Pause
+              </>
+            ) : (
+              <>
+                <PlayIcon className="h-4 w-4" />
+                Auto
+              </>
+            )}
+          </span>
+        </button>
+
+        {id && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsPlaying(false);
+              onClose();
+              router.push(`/portfolio/item/${id}`);
+            }}
+            className="hidden min-h-[40px] rounded-lg border border-white/10 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur hover:bg-black/60 sm:inline-flex sm:items-center"
+          >
+            View Project
+          </button>
+        )}
+
+        <select
+          value={intervalMs}
+          onChange={(e) => setIntervalMs(Number(e.target.value))}
+          className="hidden min-h-[40px] rounded-lg border border-white/10 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur sm:block"
+        >
+          <option className="bg-white text-black" value={1500}>Very Fast</option>
+          <option className="bg-white text-black" value={2500}>Fast</option>
+          <option className="bg-white text-black" value={3500}>Normal</option>
+          <option className="bg-white text-black" value={5000}>Slow</option>
+          <option className="bg-white text-black" value={7000}>Very Slow</option>
+        </select>
+
+        <button
+          onClick={closeAndStop}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/55 text-xl text-white backdrop-blur hover:bg-black/70"
+          aria-label="Close slideshow"
+          title="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={prev}
+            className="absolute left-3 top-1/2 z-30 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur hover:bg-black/60 sm:flex"
+            aria-label="Previous image"
+          >
+            <ChevronLeftIcon className="h-6 w-6" />
+          </button>
+
+          <button
+            onClick={next}
+            className="absolute right-3 top-1/2 z-30 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur hover:bg-black/60 sm:flex"
+            aria-label="Next image"
+          >
+            <ChevronRightIcon className="h-6 w-6" />
+          </button>
+        </>
+      )}
+
+      {/* mobile counter */}
+      {images.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/10 bg-black/55 px-3 py-1 text-xs text-white/85 backdrop-blur sm:hidden">
+          {idx + 1} / {images.length}
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 }
