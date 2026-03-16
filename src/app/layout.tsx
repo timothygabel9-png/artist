@@ -27,35 +27,43 @@ const displayFont = Cinzel_Decorative({
   variable: "--font-display",
 });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: {
-    default: "Creative Edge | Joshua Schultz",
-    template: "%s | Creative Edge",
+    default: "Schultz Murals",
+    template: "%s | Schultz Murals",
   },
   description:
-    "Murals, graphic tees, studio artwork, and creative builds by Joshua Schultz in Aurora, IL and beyond.",
-  metadataBase: new URL("https://hope12.netlify.app"),
+    "Custom murals, graphic design, and public art by Joshua Schultz. Murals for businesses, offices, restaurants, and public spaces.",
+
+  metadataBase: new URL("https://schultzmurals.com"),
+
   openGraph: {
-    title: "Creative Edge | Joshua Schultz",
-    description: "Murals, graphic tees, studio artwork, and creative builds.",
-    url: "https://hope12.netlify.app",
-    siteName: "Creative Edge",
+    title: "Schultz Murals",
+    description:
+      "Custom murals and graphic design by artist Joshua Schultz.",
+    url: "https://schultzmurals.com",
+    siteName: "Schultz Murals",
     images: [
       {
-        url: "/hero.jpg",
+        url: "/hero/1.jpg",
         width: 1200,
         height: 630,
-        alt: "Creative Edge artwork preview",
+        alt: "Schultz Murals artwork",
       },
     ],
-    locale: "en_US",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "Creative Edge | Joshua Schultz",
-    description: "Murals, graphic tees, studio artwork, and creative builds.",
-    images: ["/hero.jpg"],
+    title: "Schultz Murals",
+    description: "Custom murals and public art by Joshua Schultz.",
+    images: ["/hero/1.jpg"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

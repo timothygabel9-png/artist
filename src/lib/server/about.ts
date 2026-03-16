@@ -28,7 +28,7 @@ export async function getAboutDoc(): Promise<AboutDoc> {
         {
           id: "story-1",
           heading: "The Story",
-          body: "Murals, design, and studio work built to fit the space and the people around it.",
+          body: "Joshua Schultz is an Illinois-based mural artist creating custom murals, graphic design, and public art throughout the Aurora and Chicago area. His work includes large-scale business murals, restaurant murals, and community art projects designed to bring spaces to life with color, storytelling, and craftsmanship.",
           x: 8,
           y: 10,
           w: 420,
