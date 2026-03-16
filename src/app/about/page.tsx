@@ -16,24 +16,24 @@ function InstagramIcon({ className = "h-5 w-5" }: { className?: string }) {
 function InstagramFollowSection() {
   return (
     <div className="pointer-events-auto">
-      <div className="mx-auto max-w-lg text-center">
-        <div className="relative inline-flex flex-col items-center overflow-hidden rounded-[26px] border border-white/10 bg-black/12 px-5 py-4 text-white shadow-[0_14px_50px_rgba(0,0,0,0.26)] backdrop-blur-xl sm:px-7 sm:py-5">
-          {/* soft instagram glow */}
-          <div className="pointer-events-none absolute inset-0 opacity-70">
-            <div className="absolute -left-10 top-0 h-24 w-24 rounded-full bg-pink-500/12 blur-3xl" />
-            <div className="absolute right-0 top-2 h-24 w-24 rounded-full bg-orange-400/10 blur-3xl" />
-            <div className="absolute bottom-0 left-1/3 h-20 w-20 rounded-full bg-violet-500/10 blur-3xl" />
+      <div className="mx-auto max-w-md text-center">
+        <div className="relative px-4 py-3 text-white">
+          {/* soft glow only, no visible outer card */}
+          <div className="pointer-events-none absolute inset-0 opacity-60">
+            <div className="absolute left-1/2 top-1/2 h-28 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/6 blur-3xl" />
+            <div className="absolute left-1/2 top-1/2 h-24 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink-500/8 blur-3xl" />
+            <div className="absolute left-1/2 top-1/2 h-24 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-500/8 blur-3xl" />
           </div>
 
-          <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/55 sm:text-[11px]">
+          <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/50">
             Follow the Artist
           </div>
 
-          <h2 className="relative z-10 mt-2 text-lg font-semibold tracking-tight text-white sm:text-xl">
+          <h2 className="relative z-10 mt-2 text-xl font-semibold tracking-tight text-white drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)]">
             Stay connected on Instagram
           </h2>
 
-          <p className="relative z-10 mt-2 max-w-md text-sm leading-relaxed text-white/70">
+          <p className="relative z-10 mt-2 text-sm leading-relaxed text-red/85 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
             See murals, sketches, works in progress, and new finished pieces from Joshua Schultz.
           </p>
 
@@ -42,15 +42,15 @@ function InstagramFollowSection() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Follow Joshua Schultz on Instagram"
-            className="relative z-10 mt-4 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition duration-300 hover:-translate-y-[1px] hover:border-white/25 hover:bg-white/15"
+            className="relative z-10 mt-4 inline-flex items-center gap-3 rounded-full border border-white/12 bg-black/8 px-4 py-2 text-sm font-medium text-white backdrop-blur-md transition duration-300 hover:-translate-y-[1px] hover:border-white/20 hover:bg-white/12"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10">
               <InstagramIcon className="h-4 w-4" />
             </span>
             <span>Follow @joshuatschultz</span>
           </a>
 
-          <div className="relative z-10 mt-3 text-xs tracking-[0.16em] text-white/40">
+          <div className="relative z-10 mt-3 text-xs tracking-[0.14em] text-white/35">
             @joshuatschultz
           </div>
         </div>
@@ -72,10 +72,8 @@ export default async function AboutPage() {
       <main className="mx-auto w-full max-w-[1600px] px-3 py-4 text-white sm:px-4 sm:py-6 lg:px-6">
         {/* DESKTOP / TABLET FULL-SCREEN COLLAGE */}
         <section className="relative hidden min-h-[calc(100svh-7rem)] overflow-hidden rounded-3xl border border-white/10 bg-black/30 md:block">
-          {/* background vignette */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/35" />
 
-          {/* collage */}
           <div className="absolute inset-0 p-3 sm:p-4 lg:p-5">
             <div className="grid h-full auto-rows-[90px] grid-cols-12 gap-3 lg:auto-rows-[110px] lg:gap-4">
               {images.slice(0, 18).map((src, i) => {
@@ -109,7 +107,6 @@ export default async function AboutPage() {
                       floaters[i % floaters.length],
                     ].join(" ")}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={src}
                       alt=""
@@ -123,11 +120,10 @@ export default async function AboutPage() {
             </div>
           </div>
 
-          {/* larger floating story cards */}
-          <div className="absolute inset-0">
+          <div className="absolute inset-x-0 top-0 bottom-88">
             {about.blocks?.map((b, i) => {
               const left = clamp(b.x ?? 10, 3, 74);
-              const top = clamp(b.y ?? 10, 4, 78);
+              const top = clamp(b.y ?? 10, 4, 46);
               const w = clamp(b.w ?? 520, 340, 760);
 
               return (
@@ -166,8 +162,9 @@ export default async function AboutPage() {
             })}
           </div>
 
-          {/* centered instagram follow section */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-6 lg:bottom-10">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-40 bg-gradient-to-t from-black/45 to-transparent" />
+
+          <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-6">
             <InstagramFollowSection />
           </div>
         </section>
@@ -183,7 +180,6 @@ export default async function AboutPage() {
                   i % 3 === 0 ? "aspect-[4/5]" : "aspect-square",
                 ].join(" ")}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
                   alt=""

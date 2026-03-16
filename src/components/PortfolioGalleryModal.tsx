@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -92,6 +93,7 @@ export default function PortfolioGalleryModal({
   const [isPlaying, setIsPlaying] = useState(false);
   const [intervalMs, setIntervalMs] = useState(3500);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const fullscreenRef = useRef<HTMLDivElement | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -151,6 +153,10 @@ export default function PortfolioGalleryModal({
     touchStartX.current = null;
     touchEndX.current = null;
   };
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -222,13 +228,13 @@ export default function PortfolioGalleryModal({
     }
   }, [open]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const current = images[idx];
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] bg-black/88 backdrop-blur-sm"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) closeAndStop();
       }}
@@ -239,7 +245,7 @@ export default function PortfolioGalleryModal({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onDoubleClick={toggleFullscreen}
-        className="absolute inset-0 overflow-y-auto overscroll-contain"
+        className="absolute inset-0 overflow-auto overscroll-contain"
       >
         {current ? (
           <>
@@ -250,37 +256,37 @@ export default function PortfolioGalleryModal({
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
-                filter: "blur(55px) brightness(0.45)",
+                filter: 'blur(55px) brightness(0.45)',
                 transform: "scale(1.15)",
               }}
             />
-            <div className="absolute inset-0 z-0 bg-black/35" />
+            <div className="absolute inset-0 z-0 bg-black/45" />
 
-            <div className="relative z-10 min-h-full w-full px-3 pb-20 pt-20 sm:px-6 sm:pb-8 sm:pt-24">
-              <div className="flex min-h-[calc(100dvh-8rem)] items-center justify-center">
+            <div className="relative z-10 flex min-h-screen w-full items-center justify-center px-3 py-20 sm:px-6 sm:py-24">
+              <div key={current} className="animate-[fadeIn_.45s_ease-out]">
                 <img
                   src={current}
                   alt={title || "Image"}
-                  className="block h-auto max-h-[82dvh] w-auto max-w-full select-none object-contain"
+                  className="block h-auto max-h-[88vh] w-auto max-w-full select-none object-contain transition-all duration-500 ease-out"
                   draggable={false}
                 />
               </div>
             </div>
           </>
         ) : (
-          <div className="flex h-full items-center justify-center text-white/40">
+          <div className="flex min-h-screen items-center justify-center text-white/40">
             No images
           </div>
         )}
 
-<div className="pointer-events-none absolute inset-x-0 top-20 z-20 flex justify-center px-4 sm:top-24 sm:px-6">
+<div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center px-4 sm:top-4 sm:px-6">
   <div className="w-full max-w-2xl text-center">
-    <div className="px-5 py-3">
-      <div className="text-lg font-semibold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] sm:text-xl">
+    <div className="px-5 py-2">
+      <div className="text-lg font-semibold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] sm:text-xl">
         {title || "Portfolio item"}
       </div>
       {description ? (
-        <div className="mt-1 text-sm text-white/75 drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] sm:text-base">
+        <div className="mt-1 text-sm text-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] sm:text-base">
           {description}
         </div>
       ) : null}
@@ -316,19 +322,19 @@ export default function PortfolioGalleryModal({
             className="min-h-[40px] rounded-lg border border-white/10 bg-black/55 px-2 py-2 text-sm text-white backdrop-blur hover:bg-black/70"
             aria-label="Slideshow speed"
           >
-            <option className="bg-white text-black" value={1500}>
+            <option className="bg-white text-black" value={3000}>
               Fast
             </option>
-            <option className="bg-white text-black" value={2500}>
+            <option className="bg-white text-black" value={4000}>
               Medium
             </option>
-            <option className="bg-white text-black" value={3500}>
+            <option className="bg-white text-black" value={6000}>
               Normal
             </option>
-            <option className="bg-white text-black" value={5000}>
+            <option className="bg-white text-black" value={8000}>
               Slow
             </option>
-            <option className="bg-white text-black" value={7000}>
+            <option className="bg-white text-black" value={10000}>
               Very Slow
             </option>
           </select>
@@ -371,20 +377,20 @@ export default function PortfolioGalleryModal({
           <>
             <button
               onClick={prev}
-              className="absolute left-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/70 sm:h-12 sm:w-12"
+              className="absolute left-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur-md transition hover:scale-105 hover:bg-black/70 sm:left-6 sm:h-14 sm:w-14"
               aria-label="Previous image"
               type="button"
             >
-              <ChevronLeftIcon className="h-6 w-6" />
+              <ChevronLeftIcon className="h-6 w-6 sm:h-7 sm:w-7" />
             </button>
 
             <button
               onClick={next}
-              className="absolute right-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/70 sm:h-12 sm:w-12"
+              className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white backdrop-blur-md transition hover:scale-105 hover:bg-black/70 sm:right-6 sm:h-14 sm:w-14"
               aria-label="Next image"
               type="button"
             >
-              <ChevronRightIcon className="h-6 w-6" />
+              <ChevronRightIcon className="h-6 w-6 sm:h-7 sm:w-7" />
             </button>
           </>
         )}
@@ -395,6 +401,7 @@ export default function PortfolioGalleryModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

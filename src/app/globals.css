@@ -92,6 +92,7 @@ body {
   100% { transform: translateY(0px); }
 }
 
+
 @keyframes cardDriftB {
   0% { transform: translateY(0px); }
   50% { transform: translateY(6px); }
