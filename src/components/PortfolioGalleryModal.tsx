@@ -91,29 +91,14 @@ export default function PortfolioGalleryModal({
   const [idx, setIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [intervalMs, setIntervalMs] = useState(3500);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const fullscreenRef = useRef<HTMLDivElement | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-const toggleFullscreen = async () => {
-  const el = fullscreenRef.current;
-  if (!el) return;
-
-  try {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-      closeAndStop(); // return to thumbnails after exiting fullscreen
-    } else {
-      await el.requestFullscreen();
-    }
-  } catch {}
-};
-
   const closeAndStop = () => {
     setIsPlaying(false);
-    document.body.style.overflow = "";
-    document.documentElement.style.overflow = "";
     onClose();
   };
 
@@ -127,22 +112,41 @@ const toggleFullscreen = async () => {
     setIdx((n) => (n >= images.length - 1 ? 0 : n + 1));
   };
 
+  const toggleFullscreen = async () => {
+    const el = fullscreenRef.current;
+    if (!el) return;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await el.requestFullscreen();
+      }
+    } catch {
+      // ignore fullscreen errors
+    }
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartX.current = e.changedTouches[0].clientX;
+    touchEndX.current = null;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
+    touchEndX.current = e.changedTouches[0].clientX;
   };
 
   const handleTouchEnd = () => {
-    if (touchStartX.current === null || touchEndX.current === null) return;
+    if (touchStartX.current == null || touchEndX.current == null) return;
 
     const distance = touchStartX.current - touchEndX.current;
-    const SWIPE_THRESHOLD = 50;
+    const SWIPE_THRESHOLD = 40;
 
-    if (distance > SWIPE_THRESHOLD) next();
-    if (distance < -SWIPE_THRESHOLD) prev();
+    if (distance > SWIPE_THRESHOLD) {
+      next();
+    } else if (distance < -SWIPE_THRESHOLD) {
+      prev();
+    }
 
     touchStartX.current = null;
     touchEndX.current = null;
@@ -172,6 +176,17 @@ const toggleFullscreen = async () => {
   }, [open]);
 
   useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!open || !isPlaying || images.length <= 1) return;
 
     const timerId = setInterval(() => {
@@ -185,167 +200,201 @@ const toggleFullscreen = async () => {
     if (!open) return;
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeAndStop();
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
+      if (e.key === "Escape") {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+          return;
+        }
+        closeAndStop();
+      }
+
+      if (e.key === "ArrowRight" && images.length > 1) next();
+      if (e.key === "ArrowLeft" && images.length > 1) prev();
     };
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, images.length]);
 
+  useEffect(() => {
+    if (!open && document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, [open]);
+
   if (!open) return null;
 
   const current = images[idx];
 
-return (
-  <div
-    className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm"
-    onMouseDown={(e) => {
-      if (e.target === e.currentTarget) closeAndStop();
-    }}
-  >
-    {/* Full-frame viewer */}
+  return (
     <div
-      ref={fullscreenRef}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onDoubleClick={toggleFullscreen}
-      className="absolute inset-0 overflow-hidden"
+      className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) closeAndStop();
+      }}
     >
-      {current ? (
-        <>
-          {/* blurred background */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `url("${current}")`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              filter: "blur(55px) brightness(0.45)",
-              transform: "scale(1.15)",
-            }}
-          />
-          <div className="absolute inset-0 z-0 bg-black/35" />
-
-          {/* main image */}
-          <div className="relative z-10 flex h-full w-full items-center justify-center p-3 sm:p-6">
-            <img
-              src={current}
-              alt={title || "Image"}
-              className="block max-h-[92dvh] max-w-[96vw] object-contain"
+      <div
+        ref={fullscreenRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onDoubleClick={toggleFullscreen}
+        className="absolute inset-0 overflow-y-auto overscroll-contain"
+      >
+        {current ? (
+          <>
+            <div
+              className="absolute inset-0 z-0"
+              style={{
+                backgroundImage: `url("${current}")`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                filter: "blur(55px) brightness(0.45)",
+                transform: "scale(1.15)",
+              }}
             />
-          </div>
-        </>
-      ) : (
-        <div className="flex h-full items-center justify-center text-white/40">
-          No images
-        </div>
-      )}
+            <div className="absolute inset-0 z-0 bg-black/35" />
 
-      {/* top overlay */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/70 via-black/35 to-transparent px-4 py-4 sm:px-6">
-        <div className="pr-24 sm:pr-40">
-          <div className="truncate text-base font-semibold text-white sm:text-lg">
-            {title || "Portfolio item"}
-          </div>
-          {description ? (
-            <div className="mt-1 line-clamp-2 text-xs text-white/75 sm:text-sm">
-              {description}
+            <div className="relative z-10 min-h-full w-full px-3 pb-20 pt-20 sm:px-6 sm:pb-8 sm:pt-24">
+              <div className="flex min-h-[calc(100dvh-8rem)] items-center justify-center">
+                <img
+                  src={current}
+                  alt={title || "Image"}
+                  className="block h-auto max-h-[82dvh] w-auto max-w-full select-none object-contain"
+                  draggable={false}
+                />
+              </div>
             </div>
-          ) : null}
-        </div>
-      </div>
-
-      {/* floating controls */}
-      <div className="absolute right-3 top-3 z-30 flex items-center gap-2 sm:right-4 sm:top-4">
-        <button
-          onClick={() => setIsPlaying((p) => !p)}
-          disabled={images.length <= 1}
-          className="hidden min-h-[40px] rounded-lg border border-white/10 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur hover:bg-black/60 disabled:opacity-50 sm:inline-flex sm:items-center"
-        >
-          <span className="flex items-center gap-2">
-            {isPlaying ? (
-              <>
-                <PauseIcon className="h-4 w-4" />
-                Pause
-              </>
-            ) : (
-              <>
-                <PlayIcon className="h-4 w-4" />
-                Auto
-              </>
-            )}
-          </span>
-        </button>
-
-        {id && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsPlaying(false);
-              onClose();
-              router.push(`/portfolio/item/${id}`);
-            }}
-            className="hidden min-h-[40px] rounded-lg border border-white/10 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur hover:bg-black/60 sm:inline-flex sm:items-center"
-          >
-            View Project
-          </button>
+          </>
+        ) : (
+          <div className="flex h-full items-center justify-center text-white/40">
+            No images
+          </div>
         )}
 
-        <select
-          value={intervalMs}
-          onChange={(e) => setIntervalMs(Number(e.target.value))}
-          className="hidden min-h-[40px] rounded-lg border border-white/10 bg-black/45 px-3 py-2 text-sm text-white backdrop-blur sm:block"
-        >
-          <option className="bg-white text-black" value={1500}>Very Fast</option>
-          <option className="bg-white text-black" value={2500}>Fast</option>
-          <option className="bg-white text-black" value={3500}>Normal</option>
-          <option className="bg-white text-black" value={5000}>Slow</option>
-          <option className="bg-white text-black" value={7000}>Very Slow</option>
-        </select>
-
-        <button
-          onClick={closeAndStop}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/55 text-xl text-white backdrop-blur hover:bg-black/70"
-          aria-label="Close slideshow"
-          title="Close"
-        >
-          ×
-        </button>
+<div className="pointer-events-none absolute inset-x-0 top-20 z-20 flex justify-center px-4 sm:top-24 sm:px-6">
+  <div className="w-full max-w-2xl text-center">
+    <div className="px-5 py-3">
+      <div className="text-lg font-semibold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] sm:text-xl">
+        {title || "Portfolio item"}
       </div>
-
-      {/* arrows */}
-      {images.length > 1 && (
-        <>
-          <button
-            onClick={prev}
-            className="absolute left-3 top-1/2 z-30 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur hover:bg-black/60 sm:flex"
-            aria-label="Previous image"
-          >
-            <ChevronLeftIcon className="h-6 w-6" />
-          </button>
-
-          <button
-            onClick={next}
-            className="absolute right-3 top-1/2 z-30 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur hover:bg-black/60 sm:flex"
-            aria-label="Next image"
-          >
-            <ChevronRightIcon className="h-6 w-6" />
-          </button>
-        </>
-      )}
-
-      {/* mobile counter */}
-      {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/10 bg-black/55 px-3 py-1 text-xs text-white/85 backdrop-blur sm:hidden">
-          {idx + 1} / {images.length}
+      {description ? (
+        <div className="mt-1 text-sm text-white/75 drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)] sm:text-base">
+          {description}
         </div>
-      )}
+      ) : null}
     </div>
   </div>
-);
+</div>
+
+        <div className="absolute right-3 top-3 z-30 flex items-center gap-2 sm:right-4 sm:top-4">
+          <button
+            type="button"
+            onClick={() => setIsPlaying((p) => !p)}
+            disabled={images.length <= 1}
+            className="inline-flex min-h-[40px] items-center rounded-lg border border-white/10 bg-black/55 px-3 py-2 text-sm text-white backdrop-blur hover:bg-black/70 disabled:opacity-50"
+          >
+            <span className="flex items-center gap-2">
+              {isPlaying ? (
+                <>
+                  <PauseIcon className="h-4 w-4" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <PlayIcon className="h-4 w-4" />
+                  Auto
+                </>
+              )}
+            </span>
+          </button>
+
+          <select
+            value={intervalMs}
+            onChange={(e) => setIntervalMs(Number(e.target.value))}
+            className="min-h-[40px] rounded-lg border border-white/10 bg-black/55 px-2 py-2 text-sm text-white backdrop-blur hover:bg-black/70"
+            aria-label="Slideshow speed"
+          >
+            <option className="bg-white text-black" value={1500}>
+              Fast
+            </option>
+            <option className="bg-white text-black" value={2500}>
+              Medium
+            </option>
+            <option className="bg-white text-black" value={3500}>
+              Normal
+            </option>
+            <option className="bg-white text-black" value={5000}>
+              Slow
+            </option>
+            <option className="bg-white text-black" value={7000}>
+              Very Slow
+            </option>
+          </select>
+
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            className="hidden min-h-[40px] items-center rounded-lg border border-white/10 bg-black/55 px-3 py-2 text-sm text-white backdrop-blur hover:bg-black/70 sm:inline-flex"
+          >
+            {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          </button>
+
+          {id && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsPlaying(false);
+                onClose();
+                router.push(`/portfolio/item/${id}`);
+              }}
+              className="hidden min-h-[40px] items-center rounded-lg border border-white/10 bg-black/55 px-3 py-2 text-sm text-white backdrop-blur hover:bg-black/70 sm:inline-flex"
+            >
+              View Project
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={closeAndStop}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/55 text-xl text-white backdrop-blur hover:bg-black/70"
+            aria-label="Close slideshow"
+            title="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              className="absolute left-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/70 sm:h-12 sm:w-12"
+              aria-label="Previous image"
+              type="button"
+            >
+              <ChevronLeftIcon className="h-6 w-6" />
+            </button>
+
+            <button
+              onClick={next}
+              className="absolute right-3 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur hover:bg-black/70 sm:h-12 sm:w-12"
+              aria-label="Next image"
+              type="button"
+            >
+              <ChevronRightIcon className="h-6 w-6" />
+            </button>
+          </>
+        )}
+
+        {images.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/10 bg-black/55 px-3 py-1 text-xs text-white/85 backdrop-blur sm:hidden">
+            {idx + 1} / {images.length}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

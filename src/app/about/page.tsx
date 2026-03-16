@@ -5,6 +5,60 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+function InstagramIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M7.75 2C4.574 2 2 4.574 2 7.75v8.5C2 19.426 4.574 22 7.75 22h8.5C19.426 22 22 19.426 22 16.25v-8.5C22 4.574 19.426 2 16.25 2h-8.5zm0 1.8h8.5c2.18 0 3.95 1.77 3.95 3.95v8.5c0 2.18-1.77 3.95-3.95 3.95h-8.5c-2.18 0-3.95-1.77-3.95-3.95v-8.5c0-2.18 1.77-3.95 3.95-3.95zm9.65 1.35a1.05 1.05 0 100 2.1 1.05 1.05 0 000-2.1zM12 7.3A4.7 4.7 0 107.3 12 4.705 4.705 0 0012 7.3zm0 1.8A2.9 2.9 0 119.1 12 2.903 2.903 0 0112 9.1z" />
+    </svg>
+  );
+}
+
+function InstagramFollowSection() {
+  return (
+    <div className="pointer-events-auto">
+      <div className="mx-auto max-w-lg text-center">
+        <div className="relative inline-flex flex-col items-center overflow-hidden rounded-[26px] border border-white/10 bg-black/12 px-5 py-4 text-white shadow-[0_14px_50px_rgba(0,0,0,0.26)] backdrop-blur-xl sm:px-7 sm:py-5">
+          {/* soft instagram glow */}
+          <div className="pointer-events-none absolute inset-0 opacity-70">
+            <div className="absolute -left-10 top-0 h-24 w-24 rounded-full bg-pink-500/12 blur-3xl" />
+            <div className="absolute right-0 top-2 h-24 w-24 rounded-full bg-orange-400/10 blur-3xl" />
+            <div className="absolute bottom-0 left-1/3 h-20 w-20 rounded-full bg-violet-500/10 blur-3xl" />
+          </div>
+
+          <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/55 sm:text-[11px]">
+            Follow the Artist
+          </div>
+
+          <h2 className="relative z-10 mt-2 text-lg font-semibold tracking-tight text-white sm:text-xl">
+            Stay connected on Instagram
+          </h2>
+
+          <p className="relative z-10 mt-2 max-w-md text-sm leading-relaxed text-white/70">
+            See murals, sketches, works in progress, and new finished pieces from Joshua Schultz.
+          </p>
+
+          <a
+            href="https://www.instagram.com/joshuatschultz/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Follow Joshua Schultz on Instagram"
+            className="relative z-10 mt-4 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition duration-300 hover:-translate-y-[1px] hover:border-white/25 hover:bg-white/15"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+              <InstagramIcon className="h-4 w-4" />
+            </span>
+            <span>Follow @joshuatschultz</span>
+          </a>
+
+          <div className="relative z-10 mt-3 text-xs tracking-[0.16em] text-white/40">
+            @joshuatschultz
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function AboutPage() {
   const about = await getAboutDoc();
   const images = await getCollageImages(18);
@@ -111,6 +165,11 @@ export default async function AboutPage() {
               );
             })}
           </div>
+
+          {/* centered instagram follow section */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-6 lg:bottom-10">
+            <InstagramFollowSection />
+          </div>
         </section>
 
         {/* MOBILE VERSION */}
@@ -154,6 +213,10 @@ export default async function AboutPage() {
               ))}
             </div>
           ) : null}
+
+          <div className="mt-6">
+            <InstagramFollowSection />
+          </div>
         </section>
       </main>
     </SoftPageShell>

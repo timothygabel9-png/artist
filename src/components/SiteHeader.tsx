@@ -36,7 +36,7 @@ export default function SiteHeader() {
           className="text-white font-semibold tracking-wide hover:text-white/95 transition"
           onClick={() => setOpen(false)}
         >
-          Schultz Studio
+          Schultz Murals
         </Link>
 
         {/* Desktop nav */}
