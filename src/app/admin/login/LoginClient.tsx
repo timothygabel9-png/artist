@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function LoginClient() {
@@ -11,11 +11,10 @@ export default function LoginClient() {
     setBusy(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
     } catch (e: any) {
       console.error("AUTH ERROR:", e?.code, e?.message, e);
       alert(`${e?.code || "auth/error"}: ${e?.message || "Unknown error"}`);
-    } finally {
       setBusy(false);
     }
   };
