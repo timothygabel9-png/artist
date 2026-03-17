@@ -6,12 +6,10 @@ import { auth } from "@/lib/firebase";
 import LoginClient from "./login/LoginClient";
 import AdminDashboard from "./AdminDashboard";
 
-const ADMIN_EMAILS =
-  (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-
+const ADMIN_EMAILS = [
+  "joshuatschultz@gmail.com",
+  "timothy.gabel9@gmail.com",
+];
 
 export default function AdminGate() {
   const [user, setUser] = useState<any>(null);
