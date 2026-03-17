@@ -1,11 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { GoogleAuthProvider, onAuthStateChanged, signInWithRedirect } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 
 export default function LoginClient() {
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.replace("/admin");
+      }
+    });
+
+    return () => unsub();
+  }, [router]);
 
   const onGoogle = async () => {
     setBusy(true);

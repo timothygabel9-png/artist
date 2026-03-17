@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import LoginPageClient from "./LoginPageClient";
+import LoginClient from "./LoginClient";
 
 export const metadata = {
   title: "Admin Login",
@@ -14,7 +14,12 @@ export default function AdminLoginPage() {
         </main>
       }
     >
-      <LoginPageClient />
+      <main className="min-h-screen bg-neutral-950 p-6 text-white">
+        <div className="mx-auto max-w-md pt-16">
+          <h1 className="mb-6 text-2xl font-semibold">Admin Login</h1>
+          <LoginClient />
+        </div>
+      </main>
     </Suspense>
   );
 }

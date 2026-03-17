@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import LoginClient from "./login/LoginClient";
 import AdminDashboard from "./AdminDashboard";
@@ -9,17 +9,14 @@ import AdminDashboard from "./AdminDashboard";
 const ADMIN_EMAILS = [
   "joshuatschultz@gmail.com",
   "timothy.gabel9@gmail.com",
-];
+  "tim@watcherproducts.com",
+].map((email) => email.toLowerCase());
 
 export default function AdminGate() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getRedirectResult(auth).catch((err) => {
-      console.error("Redirect login error:", err);
-    });
-
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -32,7 +29,7 @@ export default function AdminGate() {
     return <div className="p-6 text-white">Loading...</div>;
   }
 
-  const email = user?.email?.toLowerCase?.() || "";
+  const email = user?.email?.toLowerCase() || "";
   const isAllowed = ADMIN_EMAILS.includes(email);
 
   if (!user) {
