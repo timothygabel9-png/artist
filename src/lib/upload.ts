@@ -13,7 +13,15 @@ async function debugAuth() {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "./firebase";
 
-const ALLOWED_ROOTS = ["portfolio", "media", "teeProducts", "tees"] as const;
+const ALLOWED_ROOTS = [
+  "portfolio",
+  "media",
+  "teeProducts",
+  "tees",
+  "requests",
+  "contact",
+  "uploads"
+] as const;
 type AllowedRoot = (typeof ALLOWED_ROOTS)[number];
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB

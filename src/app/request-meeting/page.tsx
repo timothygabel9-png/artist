@@ -89,7 +89,7 @@ export default function RequestMeetingPage() {
         }
 
         const safeName = photo.name.replace(/[^\w.\-]+/g, "_");
-        const path = `meetingRequests/${Date.now()}_${safeName}`;
+        const path = `requests/${Date.now()}_${safeName}`;
         setStatus("Uploading photo…");
         photoUrl = await uploadFile(photo, path);
       }
@@ -135,12 +135,19 @@ export default function RequestMeetingPage() {
         );
       }
 
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        throw new Error(
-          (typeof data?.error === "string" && data.error) || "Failed to send request."
-        );
-      }
+const data = await res.json();
+console.log("request-meeting response:", {
+  status: res.status,
+  ok: res.ok,
+  data,
+});
+
+if (!res.ok || !data.ok) {
+  throw new Error(
+    `Status ${res.status}: ` +
+      ((typeof data?.error === "string" && data.error) || "Failed to send request.")
+  );
+}
 
       setStatus("✅ Request sent! We’ll reach out soon.");
       setForm(initial);

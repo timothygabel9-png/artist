@@ -37,9 +37,12 @@ export async function POST(req: Request) {
       text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
     });
 
-    if (error) {
-      return NextResponse.json({ ok: false, error }, { status: 500 });
-    }
+if (error) {
+  return NextResponse.json(
+    { ok: false, error: error.message || JSON.stringify(error) },
+    { status: 500 }
+  );
+}
 
     return NextResponse.json({ ok: true, id: data?.id });
   } catch (e: any) {
