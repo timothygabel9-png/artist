@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import LoginClient from "./login/LoginClient";
-import AdminDashboard from "./AdminDashboard";
 
 const ADMIN_EMAILS = [
   "joshuatschultz@gmail.com",
@@ -15,31 +14,30 @@ const ADMIN_EMAILS = [
 export default function AdminGate() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
+      console.log("AdminGate auth state:", u?.email || null);
       setUser(u);
       setLoading(false);
+
+      if (!u) {
+        router.replace("/admin/login");
+      }
     });
 
     return () => unsub();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return <div className="p-6 text-white">Loading...</div>;
   }
 
-  const email = user?.email?.toLowerCase() || "";
-  const isAllowed = ADMIN_EMAILS.includes(email);
+  if (!user) return null;
 
-  if (!user) {
-    return (
-      <div className="p-6 text-white">
-        <h2 className="mb-4 text-xl">Admin Login</h2>
-        <LoginClient />
-      </div>
-    );
-  }
+  const email = user.email?.toLowerCase() || "";
+  const isAllowed = ADMIN_EMAILS.includes(email);
 
   if (!isAllowed) {
     return (
@@ -52,5 +50,10 @@ export default function AdminGate() {
     );
   }
 
-  return <AdminDashboard />;
+  return (
+    <div className="p-6 text-white">
+      <h1 className="text-2xl font-bold">Admin works</h1>
+      <p>Signed in as {email}</p>
+    </div>
+  );
 }

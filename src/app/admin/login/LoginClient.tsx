@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GoogleAuthProvider, onAuthStateChanged, signInWithRedirect } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithRedirect,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 
@@ -11,6 +17,7 @@ export default function LoginClient() {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
+      console.log("LoginClient auth state:", user?.email || null);
       if (user) {
         router.replace("/admin");
       }
@@ -22,6 +29,7 @@ export default function LoginClient() {
   const onGoogle = async () => {
     setBusy(true);
     try {
+      await setPersistence(auth, browserLocalPersistence);
       const provider = new GoogleAuthProvider();
       await signInWithRedirect(auth, provider);
     } catch (e: any) {
