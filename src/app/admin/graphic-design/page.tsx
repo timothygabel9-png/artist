@@ -5,13 +5,12 @@ import Link from "next/link";
 // src/app/admin/graphic-design/page.tsx
 
 const cards = [
-  { title: "Logos", href: "/admin/portfolio/upload?type=graphic-design&category=logos" },
-  { title: "T-Shirts (Design)", href: "/admin/portfolio/upload?type=graphic-design&category=tshirts" },
-  { title: "Album Covers", href: "/admin/portfolio/upload?type=graphic-design&category=album-covers" },
-  { title: "Show Posters", href: "/admin/portfolio/upload?type=graphic-design&category=show-posters" },
-  { title: "Events", href: "/admin/portfolio/upload?type=graphic-design&category=events" },
+  { title: "Logos", href: "/admin/graphic-design/logos" },
+  { title: "T-Shirts (Design)", href: "/admin/graphic-design/tshirts" },
+  { title: "Album Covers", href: "/admin/graphic-design/album-covers" },
+  { title: "Show Posters", href: "/admin/graphic-design/show-posters" },
+  { title: "Events", href: "/admin/graphic-design/events" },
 
-  // optional: keep merch products separate
   { title: "Merch Products (Store)", href: "/admin/tees" },
 ];
 
