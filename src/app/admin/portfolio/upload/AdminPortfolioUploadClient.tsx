@@ -73,19 +73,19 @@ export default function AdminPortfolioUploadClient() {
     [tagsText]
   );
 
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      setReady(true);
-      if (!user) {
-        setUid(null);
-        setAdminOk(false);
-        return;
-      }
-      setUid(user.uid);
-      setAdminOk(await isAdmin(user.uid));
-    });
-    return () => unsub();
-  }, []);
+useEffect(() => {
+  const unsub = onAuthStateChanged(auth, async (user) => {
+    setReady(true);
+    if (!user) {
+      setUid(null);
+      setAdminOk(false);
+      return;
+    }
+    setUid(user.uid);
+    setAdminOk(await isAdmin(user.uid, user.email));
+  });
+  return () => unsub();
+}, []);
 
   function onPickFiles(list: FileList | null) {
     if (!list) return;
