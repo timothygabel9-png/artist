@@ -1,15 +1,16 @@
-"use client";
-
-import AdminPortfolioUpload from "@/app/admin/portfolio/AdminPortfolioUpload";
+import { Suspense } from "react";
+import AdminPortfolioUpload from "@/components/AdminPortfolioUpload";
 
 export default function AdminGraphicLogosPage() {
   return (
-    <AdminPortfolioUpload
-      presetType="show-posters"
-      presetCategory="logos"
-      lockType
-      lockCategory
-      titleOverride="Upload: Graphic Design / Show Posters"
-    />
+    <Suspense fallback={<div className="p-6 text-white">Loading...</div>}>
+      <AdminPortfolioUpload
+        presetType="graphic-design"
+        presetCategory="show-posters"
+        lockType
+        lockCategory
+        titleOverride="Upload: Graphic Design / Show Posters"
+      />
+    </Suspense>
   );
 }

@@ -21,20 +21,19 @@ export default function AdminGate() {
       console.log("AdminGate auth state:", u?.email || null);
       setUser(u);
       setLoading(false);
-
-      if (!u) {
-        router.replace("/admin/login");
-      }
     });
 
     return () => unsub();
-  }, [router]);
+  }, []);
 
   if (loading) {
     return <div className="p-6 text-white">Loading...</div>;
   }
 
-  if (!user) return null;
+  if (!user) {
+    router.replace("/admin/login");
+    return null;
+  }
 
   const email = user.email?.toLowerCase() || "";
   const isAllowed = ADMIN_EMAILS.includes(email);
